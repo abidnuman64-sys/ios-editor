@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ur" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>iTone - iPhone Style Photo Editor & Cam Pro</title>
+  <meta name="description" content="Android کے لیے اصلی آئی فون ایڈیٹر، وائرل فارمولاز، پری سیٹس، اور سلائیڈرز کے ساتھ۔">
+  
+  <!-- Mobile & PWA Meta Tags -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="iTone">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="ios-dark">
+
+  <div class="app-container">
+    
+    <!-- iOS Top Navigation Bar -->
+    <header class="ios-header">
+      <button id="btnCancel" class="nav-btn cancel-btn" title="Cancel / New Image">
+        <span class="btn-text">Cancel</span>
+      </button>
+      
+      <div class="header-center">
+        <div class="app-badge">
+          <svg class="apple-logo" viewBox="0 0 170 170" width="14" height="14">
+            <path fill="currentColor" d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12.02-14.42-6.11-9.46-10.9-20.25-14.37-32.37-3.48-12.12-5.22-23.75-5.22-34.89 0-14.7 3.59-26.68 10.77-35.95 7.18-9.27 16.29-13.98 27.34-14.13 4.25 0 9.17 1.15 14.77 3.45 5.6 2.3 9.38 3.5 11.35 3.6 1.74 0 5.69-1.29 11.85-3.87 6.16-2.58 11.45-3.73 15.88-3.45 11.53.65 20.82 4.96 27.87 12.93-9.91 5.99-14.76 14.37-14.54 25.13.22 8.37 3.43 15.35 9.63 20.93 6.2 5.59 13.59 8.65 22.18 9.19-2.18 6.54-4.8 13.06-7.86 19.57zM119.22 31.84c0-7.3 2.66-14.19 7.97-20.67 5.32-6.47 11.75-10.42 19.31-11.84 0 1.2.06 2.29.17 3.26.11.98.17 2.07.17 3.26 0 7.4-2.82 14.55-8.47 21.43-5.65 6.89-12.04 10.84-19.15 11.86-.33-1.63-.5-3.05-.5-4.26-.01-1.22-.01-2.23 0-3.04z"/>
+          </svg>
+          <span class="app-title">iTone Pro</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btnCompare" class="nav-btn icon-pill-btn" title="Hold to compare Original">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+          <span>Compare</span>
+        </button>
+        <button id="btnSave" class="nav-btn save-btn" title="Save / Export">
+          <span class="btn-text">Done</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Canvas Viewport Area -->
+    <main class="canvas-viewport" id="viewport">
+      
+      <!-- Welcome / Dropzone Screen if no image -->
+      <div class="upload-screen" id="uploadScreen">
+        <div class="glass-card upload-box">
+          <div class="iphone-lens-icon">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
+          <h2>iPhone Style Photo Studio</h2>
+          <p class="urdu-subtext">اپنی کسی بھی تصویر کو اصلی آئی فون کا لک دیں</p>
+          
+          <div class="upload-buttons">
+            <label class="ios-btn-primary" for="fileInput">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>تصویر منتخب کریں (Choose Photo)</span>
+            </label>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+            <button id="btnDemoPhoto" class="ios-btn-secondary">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="10 8 16 12 10 16 10 8"/>
+              </svg>
+              <span>سیمپل تصویر سے ٹیسٹ کریں (Try Sample)</span>
+            </button>
+
+            <!-- Install Native App Button -->
+            <button id="btnInstallApp" class="ios-btn-secondary" style="border-color: rgba(255, 214, 10, 0.4); color: var(--ios-accent-yellow);">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>موبائل میں ایپ انسٹال کریں (Install App)</span>
+            </button>
+          </div>
+
+          <!-- Feature highlights -->
+          <div class="feature-pills">
+            <span class="pill">✨ وائرل ٹک ٹاک آئی فون ہیک</span>
+            <span class="pill">📸 iOS Vivid & Dramatic</span>
+            <span class="pill">🌟 Shot on iPhone بیج</span>
+            <span class="pill">💎 4K ایچ ڈی سیو</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Canvas & Comparison Container -->
+      <div class="canvas-container" id="canvasContainer" style="display: none;">
+        <canvas id="mainCanvas"></canvas>
+        <canvas id="originalCanvas" style="display: none;"></canvas>
+        
+        <!-- Live Interactive Split Slider -->
+        <div class="split-slider-line" id="splitLine" style="display: none;">
+          <div class="split-handle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M8 7l-5 5 5 5V7zm8 0v10l5-5-5-5z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Comparing HUD Pill -->
+        <div class="comparing-pill" id="comparingPill">
+          <span>ORIGINAL</span>
+        </div>
+
+        <!-- Shot on iPhone Watermark Overlay Preview -->
+        <div class="watermark-overlay" id="watermarkBadge" style="display: none;">
+          <div class="wm-left">
+            <svg class="wm-apple" viewBox="0 0 170 170" width="16" height="16">
+              <path fill="currentColor" d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12.02-14.42-6.11-9.46-10.9-20.25-14.37-32.37-3.48-12.12-5.22-23.75-5.22-34.89 0-14.7 3.59-26.68 10.77-35.95 7.18-9.27 16.29-13.98 27.34-14.13 4.25 0 9.17 1.15 14.77 3.45 5.6 2.3 9.38 3.5 11.35 3.6 1.74 0 5.69-1.29 11.85-3.87 6.16-2.58 11.45-3.73 15.88-3.45 11.53.65 20.82 4.96 27.87 12.93-9.91 5.99-14.76 14.37-14.54 25.13.22 8.37 3.43 15.35 9.63 20.93 6.2 5.59 13.59 8.65 22.18 9.19-2.18 6.54-4.8 13.06-7.86 19.57zM119.22 31.84c0-7.3 2.66-14.19 7.97-20.67 5.32-6.47 11.75-10.42 19.31-11.84 0 1.2.06 2.29.17 3.26.11.98.17 2.07.17 3.26 0 7.4-2.82 14.55-8.47 21.43-5.65 6.89-12.04 10.84-19.15 11.86-.33-1.63-.5-3.05-.5-4.26-.01-1.22-.01-2.23 0-3.04z"/>
+            </svg>
+            <div class="wm-text-block">
+              <span class="wm-title">Shot on iPhone 16 Pro Max</span>
+              <span class="wm-subtitle">48MP Main • 24mm • ƒ/1.78 • ISO 40</span>
+            </div>
+          </div>
+          <div class="wm-right">
+            <span class="wm-tag">ProRAW Tone</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Floating Buttons -->
+      <div class="floating-controls" id="floatingControls" style="display: none;">
+        <button id="btnToggleSplit" class="float-btn" title="Toggle Split Slider">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="2" x2="12" y2="22"/>
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+          </svg>
+          <span>Split</span>
+        </button>
+        
+        <button id="btnResetAll" class="float-btn" title="Reset All Edits">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+          <span>Reset</span>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Bottom Controls & Tools Panel (iOS Photos Native Layout) -->
+    <footer class="ios-controls" id="controlsPanel" style="display: none;">
+      
+      <!-- 1. Value Indicator & Haptic Dial -->
+      <div class="dial-container" id="dialContainer">
+        <div class="dial-value-badge" id="dialValueBadge">0</div>
+        
+        <div class="slider-wrapper">
+          <input type="range" id="iosSlider" min="-100" max="100" value="0" class="ios-range-slider">
+          <div class="slider-ticks">
+            <span>-100</span>
+            <span>-50</span>
+            <span class="center-tick">0</span>
+            <span>+50</span>
+            <span>+100</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Sub-Panels (Adjust Tools / Filter Carousel / Crop / Watermark) -->
+      <div class="sub-panel-area">
+        
+        <!-- SUB-PANEL A: ADJUST TOOLS (Icon Circle Buttons) -->
+        <div class="tool-subpanel active" id="subpanelAdjust">
+          <div class="ios-scroll-strip" id="adjustToolsList">
+            
+            <!-- Auto Enhance -->
+            <button class="tool-circle-btn" data-tool="auto">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+              </div>
+              <span class="tool-label">Auto</span>
+              <span class="tool-val-indicator" data-val-for="auto"></span>
+            </button>
+
+            <!-- Exposure -->
+            <button class="tool-circle-btn active" data-tool="exposure">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5l1.5 1.5M5 19l1.5-1.5M17.5 6.5l1.5-1.5"/>
+                </svg>
+              </div>
+              <span class="tool-label">Exposure</span>
+              <span class="tool-val-indicator" data-val-for="exposure"></span>
+            </button>
+
+            <!-- Brilliance -->
+            <button class="tool-circle-btn" data-tool="brilliance">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <span class="tool-label">Brilliance</span>
+              <span class="tool-val-indicator" data-val-for="brilliance"></span>
+            </button>
+
+            <!-- Highlights -->
+            <button class="tool-circle-btn" data-tool="highlights">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 0 20v-20z"/>
+                </svg>
+              </div>
+              <span class="tool-label">Highlights</span>
+              <span class="tool-val-indicator" data-val-for="highlights"></span>
+            </button>
+
+            <!-- Shadows -->
+            <button class="tool-circle-btn" data-tool="shadows">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 22a10 10 0 0 1 0-20v20z" fill="currentColor"/>
+                </svg>
+              </div>
+              <span class="tool-label">Shadows</span>
+              <span class="tool-val-indicator" data-val-for="shadows"></span>
+            </button>
+
+            <!-- Contrast -->
+            <button class="tool-circle-btn" data-tool="contrast">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"/>
+                  <line x1="12" y1="3" x2="12" y2="21"/>
+                  <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>
+                </svg>
+              </div>
+              <span class="tool-label">Contrast</span>
+              <span class="tool-val-indicator" data-val-for="contrast"></span>
+            </button>
+
+            <!-- Brightness -->
+            <button class="tool-circle-btn" data-tool="brightness">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                </svg>
+              </div>
+              <span class="tool-label">Brightness</span>
+              <span class="tool-val-indicator" data-val-for="brightness"></span>
+            </button>
+
+            <!-- Black Point -->
+            <button class="tool-circle-btn" data-tool="blackPoint">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                  <circle cx="12" cy="12" r="7"/>
+                </svg>
+              </div>
+              <span class="tool-label">Black Point</span>
+              <span class="tool-val-indicator" data-val-for="blackPoint"></span>
+            </button>
+
+            <!-- Saturation -->
+            <button class="tool-circle-btn" data-tool="saturation">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                </svg>
+              </div>
+              <span class="tool-label">Saturation</span>
+              <span class="tool-val-indicator" data-val-for="saturation"></span>
+            </button>
+
+            <!-- Vibrance -->
+            <button class="tool-circle-btn" data-tool="vibrance">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v18M3 12h18M6 6l12 12M6 18L18 6"/>
+                </svg>
+              </div>
+              <span class="tool-label">Vibrance</span>
+              <span class="tool-val-indicator" data-val-for="vibrance"></span>
+            </button>
+
+            <!-- Warmth -->
+            <button class="tool-circle-btn" data-tool="warmth">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                </svg>
+              </div>
+              <span class="tool-label">Warmth</span>
+              <span class="tool-val-indicator" data-val-for="warmth"></span>
+            </button>
+
+            <!-- Tint -->
+            <button class="tool-circle-btn" data-tool="tint">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="8"/>
+                  <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                </svg>
+              </div>
+              <span class="tool-label">Tint</span>
+              <span class="tool-val-indicator" data-val-for="tint"></span>
+            </button>
+
+            <!-- Sharpness -->
+            <button class="tool-circle-btn" data-tool="sharpness">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 22 22 22"/>
+                </svg>
+              </div>
+              <span class="tool-label">Sharpness</span>
+              <span class="tool-val-indicator" data-val-for="sharpness"></span>
+            </button>
+
+            <!-- Definition -->
+            <button class="tool-circle-btn" data-tool="definition">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                </svg>
+              </div>
+              <span class="tool-label">Definition</span>
+              <span class="tool-val-indicator" data-val-for="definition"></span>
+            </button>
+
+            <!-- Vignette -->
+            <button class="tool-circle-btn" data-tool="vignette">
+              <div class="circle-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"/>
+                  <circle cx="12" cy="12" r="5" stroke-dasharray="2 2"/>
+                </svg>
+              </div>
+              <span class="tool-label">Vignette</span>
+              <span class="tool-val-indicator" data-val-for="vignette"></span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- SUB-PANEL B: iOS FILTERS CAROUSEL -->
+        <div class="tool-subpanel" id="subpanelFilters">
+          <div class="ios-filter-strip" id="filtersList">
+            
+            <div class="filter-item active" data-filter="original">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-original"></div>
+              </div>
+              <span class="filter-name">Original</span>
+            </div>
+
+            <!-- VIRAL HACK PRESET -->
+            <div class="filter-item viral-badge-item" data-filter="viralHack">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-viralHack"></div>
+                <span class="badge-mini">VIRAL</span>
+              </div>
+              <span class="filter-name">iPhone Hack</span>
+            </div>
+
+            <div class="filter-item" data-filter="vivid">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-vivid"></div>
+              </div>
+              <span class="filter-name">Vivid</span>
+            </div>
+
+            <div class="filter-item" data-filter="vividWarm">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-vividWarm"></div>
+              </div>
+              <span class="filter-name">Vivid Warm</span>
+            </div>
+
+            <div class="filter-item" data-filter="vividCool">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-vividCool"></div>
+              </div>
+              <span class="filter-name">Vivid Cool</span>
+            </div>
+
+            <div class="filter-item" data-filter="dramatic">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-dramatic"></div>
+              </div>
+              <span class="filter-name">Dramatic</span>
+            </div>
+
+            <div class="filter-item" data-filter="dramaticWarm">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-dramaticWarm"></div>
+              </div>
+              <span class="filter-name">Dramatic Warm</span>
+            </div>
+
+            <div class="filter-item" data-filter="dramaticCool">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-dramaticCool"></div>
+              </div>
+              <span class="filter-name">Dramatic Cool</span>
+            </div>
+
+            <div class="filter-item" data-filter="studioLight">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-studioLight"></div>
+              </div>
+              <span class="filter-name">Studio Light</span>
+            </div>
+
+            <div class="filter-item" data-filter="mono">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-mono"></div>
+              </div>
+              <span class="filter-name">Mono</span>
+            </div>
+
+            <div class="filter-item" data-filter="silvertone">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-silvertone"></div>
+              </div>
+              <span class="filter-name">Silvertone</span>
+            </div>
+
+            <div class="filter-item" data-filter="noir">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-noir"></div>
+              </div>
+              <span class="filter-name">Noir</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SUB-PANEL C: CROP & ROTATE TOOLS -->
+        <div class="tool-subpanel" id="subpanelCrop">
+          <div class="crop-tools-strip">
+            <button class="ios-pill-action" id="btnRotateLeft">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38l-2.73-1.19"/>
+              </svg>
+              <span>Rotate 90°</span>
+            </button>
+
+            <button class="ios-pill-action" id="btnFlipH">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"/>
+                <line x1="4" y1="20" x2="21" y2="3"/>
+                <polyline points="21 16 21 21 16 21"/>
+                <line x1="15" y1="15" x2="21" y2="21"/>
+                <line x1="4" y1="4" x2="9" y2="9"/>
+              </svg>
+              <span>Flip Horizontal</span>
+            </button>
+
+            <button class="ios-pill-action" id="btnAspectOriginal"><span>Original</span></button>
+            <button class="ios-pill-action" id="btnAspect1_1"><span>1:1 Square</span></button>
+            <button class="ios-pill-action" id="btnAspect4_5"><span>4:5 Insta</span></button>
+            <button class="ios-pill-action" id="btnAspect9_16"><span>9:16 Story</span></button>
+          </div>
+        </div>
+
+        <!-- SUB-PANEL D: SHOT ON iPHONE BADGE -->
+        <div class="tool-subpanel" id="subpanelWatermark">
+          <div class="wm-options-strip">
+            <label class="toggle-switch-wrapper">
+              <input type="checkbox" id="toggleWatermark">
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">Show "Shot on iPhone" Badge</span>
+            </label>
+            <div class="wm-model-selector">
+              <select id="wmModelSelect" class="ios-select">
+                <option value="iPhone 16 Pro Max">iPhone 16 Pro Max</option>
+                <option value="iPhone 15 Pro">iPhone 15 Pro</option>
+                <option value="iPhone 14 Pro">iPhone 14 Pro</option>
+                <option value="iPhone 13 Pro">iPhone 13 Pro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. Primary Mode Navigation Bar (Adjust / Filters / Crop / Watermark) -->
+      <nav class="bottom-tab-bar">
+        <button class="tab-btn active" data-tab="adjust">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <span>Adjust</span>
+        </button>
+
+        <button class="tab-btn" data-tab="filters">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="9" r="6"/>
+              <circle cx="15" cy="15" r="6"/>
+            </svg>
+          </div>
+          <span>Filters</span>
+        </button>
+
+        <button class="tab-btn" data-tab="crop">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2v14a2 2 0 0 0 2 2h14"/>
+              <path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+            </svg>
+          </div>
+          <span>Crop & Rotate</span>
+        </button>
+
+        <button class="tab-btn" data-tab="watermark">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+          <span>Shot on iPhone</span>
+        </button>
+      </nav>
+
+    </footer>
+
+  </div>
+
+  <!-- Export / Monetization Ad Modal (Simulated AdMob) -->
+  <div class="ios-modal-backdrop" id="exportModal" style="display: none;">
+    <div class="ios-modal-card">
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <h3>Save High-Res iPhone Photo</h3>
+        <p class="modal-subtitle">تصویر فل ایچ ڈی کوالٹی میں تیار ہے</p>
+      </div>
+
+      <!-- Simulated AdMob Rewarded Card -->
+      <div class="admob-card">
+        <div class="ad-top-badge">
+          <span class="ad-tag">Ad</span>
+          <span class="ad-network">Google AdMob Sponsored</span>
+        </div>
+        <div class="ad-body">
+          <div class="ad-logo">⚡</div>
+          <div class="ad-info">
+            <strong>iTone Premium Suite</strong>
+            <p>Unlock 100+ Pro Raw Cinematic LUTs & Cloud Backup</p>
+          </div>
+          <button class="ad-install-btn">Install</button>
+        </div>
+        <div class="earning-stat-box">
+          <small>💰 Developer Earning Status: <span class="profit-highlight">+Rs. 2.45 / Impression</span></small>
+        </div>
+      </div>
+
+      <!-- Quality Selection -->
+      <div class="export-options">
+        <label class="radio-option">
+          <input type="radio" name="exportQuality" value="1.0" checked>
+          <div class="radio-content">
+            <span class="title">Original 4K Ultra HD (Best Quality)</span>
+            <span class="desc">Original Resolution • Full Apple Color Space</span>
+          </div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="exportQuality" value="0.85">
+          <div class="radio-content">
+            <span class="title">Social Media Ready (1080p)</span>
+            <span class="desc">Fast Sharing for Instagram & WhatsApp</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnConfirmDownload" class="ios-btn-primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download Image (ڈاؤن لوڈ کریں)</span>
+        </button>
+        <button id="btnCloseModal" class="ios-btn-text">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="ios-toast" id="toast"></div>
+
+  <script src="editor.js"></script>
+
+  <!-- PWA Service Worker Registration & Install Prompt -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+      });
+    }
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('btnInstallApp');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+          }
+          deferredPrompt = null;
+        } else {
+          alert('ایپ کو انسٹال کرنے کے لیے براؤزر مینو (تین ڈاٹس) پر جائیں اور "Install App" یا "Add to Home Screen" پر کلک کریں۔');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

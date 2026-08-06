@@ -1,0 +1,18 @@
+{
+  "name": "iTone Pro - iPhone Style Photo Editor",
+  "short_name": "iTone",
+  "description": "Professional iPhone-style photo editing and camera presets for Android.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%23000000'/><circle cx='256' cy='256' r='180' fill='%231c1c1e' stroke='%23ffd60a' stroke-width='16'/><circle cx='256' cy='256' r='90' fill='none' stroke='%23ffd60a' stroke-width='12'/><circle cx='256' cy='256' r='40' fill='%23ffd60a'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
