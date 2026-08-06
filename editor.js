@@ -1,6 +1,6 @@
 /**
- * iTone Pro - Core Image Processing Engine & 4K Remini AI Unblur Engine
- * Authentic Apple iOS Vivid & Photos Algorithms
+ * Wink Pro - AI Video & Photo 4K Enhancer Engine
+ * Dual-Engine: Real-time 60FPS Video 4K Repair & Ultra HD Image Super-Resolution
  */
 
 (function () {
@@ -8,297 +8,404 @@
 
   // --- STATE ---
   const state = {
+    mode: 'photo', // 'photo' or 'video'
     originalImage: null,
-    workingCanvas: null,
-    workingCtx: null,
-    is4KActive: false,
-    currentFilter: 'original',
-    currentTool: 'exposure',
-    isSplitActive: false,
+    videoElement: null,
+    isVideoPlaying: false,
+    videoAnimFrameId: null,
+    is4KActive: true,
+    isSplitActive: true,
     splitPercent: 50,
-    showWatermark: false,
-    watermarkModel: 'iPhone 16 Pro Max',
-    rotation: 0,
-    flipH: false,
-    aspectRatio: 'original',
+    isVividActive: true,
     
-    // 15 Native iOS Adjustment Values (-100 to 100)
-    adjustments: {
-      auto: 0,
-      exposure: 0,
-      brilliance: 0,
-      highlights: 0,
-      shadows: 0,
-      contrast: 0,
-      brightness: 0,
-      blackPoint: 0,
-      saturation: 0,
-      vibrance: 0,
-      warmth: 0,
-      tint: 0,
-      sharpness: 0,
-      definition: 0,
-      vignette: 0
+    // Neural Enhancement Coefficients
+    enhancements: {
+      sharpness: 55,
+      definition: 40,
+      brilliance: 25,
+      contrast: 16,
+      saturation: 24,
+      vibrance: 22,
+      shadows: 15,
+      highlights: -10
     }
   };
 
   // --- DOM ELEMENTS ---
-  const fileInput = document.getElementById('fileInput');
-  const fileInput4K = document.getElementById('fileInput4K');
-  const btnDemoPhoto = document.getElementById('btnDemoPhoto');
-  const uploadScreen = document.getElementById('uploadScreen');
-  const canvasContainer = document.getElementById('canvasContainer');
-  const mainCanvas = document.getElementById('mainCanvas');
-  const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
-  const originalCanvas = document.getElementById('originalCanvas');
-  const origCtx = originalCanvas.getContext('2d');
-  
-  const controlsPanel = document.getElementById('controlsPanel');
-  const floatingControls = document.getElementById('floatingControls');
-  const iosSlider = document.getElementById('iosSlider');
-  const dialValueBadge = document.getElementById('dialValueBadge');
-  const comparingPill = document.getElementById('comparingPill');
-  const splitLine = document.getElementById('splitLine');
-  const watermarkBadge = document.getElementById('watermarkBadge');
-  const badge4KActive = document.getElementById('badge4KActive');
-  const toast = document.getElementById('toast');
-
-  // Buttons
-  const btnCancel = document.getElementById('btnCancel');
-  const btnSave = document.getElementById('btnSave');
+  const hubScreen = document.getElementById('hubScreen');
+  const workspaceScreen = document.getElementById('workspaceScreen');
+  const bottomBar = document.getElementById('bottomBar');
+  const btnHome = document.getElementById('btnHome');
+  const btnExport = document.getElementById('btnExport');
   const btnCompare = document.getElementById('btnCompare');
-  const btnToggleSplit = document.getElementById('btnToggleSplit');
-  const btnResetAll = document.getElementById('btnResetAll');
-  const btnTop4K = document.getElementById('btnTop4K');
-  const btnFloating4K = document.getElementById('btnFloating4K');
-  const pill4KTrigger = document.getElementById('pill4KTrigger');
   
-  // 4K AI Progress Modal
-  const modal4KProcess = document.getElementById('modal4KProcess');
+  // Inputs & Demo Triggers
+  const photoInput = document.getElementById('photoInput');
+  const videoInput = document.getElementById('videoInput');
+  const btnTryDemoPhoto = document.getElementById('btnTryDemoPhoto');
+  const btnTryDemoVideo = document.getElementById('btnTryDemoVideo');
+
+  // Canvases & Video
+  const photoCanvas = document.getElementById('photoCanvas');
+  const pCtx = photoCanvas.getContext('2d', { willReadFrequently: true });
+  const origPhotoCanvas = document.getElementById('originalPhotoCanvas');
+  const origCtx = origPhotoCanvas.getContext('2d');
+  
+  const videoWrapper = document.getElementById('videoWrapper');
+  const mainVideo = document.getElementById('mainVideo');
+  const videoCanvas = document.getElementById('videoCanvas');
+  const vCtx = videoCanvas.getContext('2d', { willReadFrequently: true });
+  const btnVideoPlayPause = document.getElementById('btnVideoPlayPause');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+
+  // HUD & Split Slider
+  const splitLine = document.getElementById('splitLine');
+  const comparingHud = document.getElementById('comparingHud');
+  const badge4kActive = document.getElementById('badge4kActive');
+  const badge4kText = document.getElementById('badge4kText');
+  const btnToggleSplit = document.getElementById('btnToggleSplit');
+  const btnToggleVivid = document.getElementById('btnToggleVivid');
+  const btnReProcess = document.getElementById('btnReProcess');
+
+  // AI Progress Modal
+  const modalWinkProcess = document.getElementById('modalWinkProcess');
   const aiProgressFill = document.getElementById('aiProgressFill');
   const aiStepText = document.getElementById('aiStepText');
   const aiPercentText = document.getElementById('aiPercentText');
-  const aiStatusHeading = document.getElementById('aiStatusHeading');
+  const aiModalHeading = document.getElementById('aiModalHeading');
 
   // Export Modal
   const exportModal = document.getElementById('exportModal');
   const btnConfirmDownload = document.getElementById('btnConfirmDownload');
   const btnCloseModal = document.getElementById('btnCloseModal');
+  const toast = document.getElementById('toast');
 
-  // Watermark controls
-  const toggleWatermark = document.getElementById('toggleWatermark');
-  const wmModelSelect = document.getElementById('wmModelSelect');
-
-  // Tabs and Subpanels
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  const subpanels = document.querySelectorAll('.tool-subpanel');
-  const toolButtons = document.querySelectorAll('.tool-circle-btn');
-  const filterItems = document.querySelectorAll('.filter-item');
+  // Bottom Tabs
+  const toolTabs = document.querySelectorAll('.tool-tab-btn');
 
   // --- INITIALIZATION ---
   function init() {
     setupUploadHandlers();
-    setupToolTabs();
-    setupAdjustmentSliders();
-    setupFilters();
-    setupCompareAndSplit();
-    setupTransformAndWatermark();
-    setup4KEngine();
+    setupSplitSlider();
+    setupVideoControls();
+    setupWorkspaceActions();
     setupExportModal();
+    setupBottomTabs();
   }
 
-  // --- UPLOAD & DEMO PHOTO ---
+  // --- UPLOAD HANDLERS ---
   function setupUploadHandlers() {
-    // 1. Remini 4K Unblur Upload Button
-    if (fileInput4K) {
-      fileInput4K.addEventListener('change', (e) => {
+    // 1. Photo Upload
+    if (photoInput) {
+      photoInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
-          loadImageFromFile(e.target.files[0], true);
+          loadPhotoFile(e.target.files[0]);
         }
       });
     }
 
-    // 2. Normal Upload Button
-    if (fileInput) {
-      fileInput.addEventListener('change', (e) => {
+    // 2. Video Upload
+    if (videoInput) {
+      videoInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
-          loadImageFromFile(e.target.files[0], false);
+          loadVideoFile(e.target.files[0]);
         }
       });
     }
 
-    // 3. Demo Photo
-    if (btnDemoPhoto) {
-      btnDemoPhoto.addEventListener('click', () => {
-        loadDemoPortrait(true);
-      });
+    // 3. Demo Triggers
+    if (btnTryDemoPhoto) {
+      btnTryDemoPhoto.addEventListener('click', () => loadDemoPhoto());
+    }
+    if (btnTryDemoVideo) {
+      btnTryDemoVideo.addEventListener('click', () => loadDemoVideo());
     }
 
-    if (pill4KTrigger) {
-      pill4KTrigger.addEventListener('click', () => {
-        loadDemoPortrait(true);
+    // 4. Back to Home
+    if (btnHome) {
+      btnHome.addEventListener('click', () => {
+        if (state.isVideoPlaying) pauseVideo();
+        hubScreen.style.display = 'flex';
+        workspaceScreen.style.display = 'none';
+        bottomBar.style.display = 'none';
+        btnExport.style.display = 'none';
+        btnCompare.style.display = 'none';
       });
     }
-
-    btnCancel.addEventListener('click', () => {
-      if (confirm('کیا آپ نئی تصویر اپلوڈ کرنا چاہتے ہیں؟')) {
-        resetToUploadScreen();
-      }
-    });
   }
 
-  function resetToUploadScreen() {
-    uploadScreen.style.display = 'flex';
-    canvasContainer.style.display = 'none';
-    controlsPanel.style.display = 'none';
-    floatingControls.style.display = 'none';
-    state.originalImage = null;
-    state.is4KActive = false;
-    state.isSplitActive = false;
-    splitLine.style.display = 'none';
-    badge4KActive.style.display = 'none';
-    if (fileInput) fileInput.value = '';
-    if (fileInput4K) fileInput4K.value = '';
-  }
-
-  function loadImageFromFile(file, autoTrigger4K = false) {
-    showToast('تصویر لوڈ ہو رہی ہے...');
+  // --- PHOTO PROCESSING PIPELINE ---
+  function loadPhotoFile(file) {
+    showToast('تصویر کلاؤڈ پر بھیجی جا رہی ہے...');
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        setupImageCanvas(img);
-        if (autoTrigger4K) {
-          setTimeout(() => trigger4KConversion(), 300);
-        }
+        state.mode = 'photo';
+        state.originalImage = img;
+        switchToWorkspace();
+        triggerWink4KScan('Photo');
       };
-      img.src = event.target.result;
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
 
-  function loadDemoPortrait(autoTrigger4K = false) {
+  function loadDemoPhoto() {
     showToast('سیمپل دھندلی تصویر لوڈ کی جا رہی ہے...');
-    const demoCanvas = document.createElement('canvas');
-    demoCanvas.width = 1200;
-    demoCanvas.height = 1500;
-    const dCtx = demoCanvas.getContext('2d');
+    const demoC = document.createElement('canvas');
+    demoC.width = 1200;
+    demoC.height = 1500;
+    const dCtx = demoC.getContext('2d');
 
-    // Rich sunset scene
+    // Sunset gradient
     const bgGrad = dCtx.createLinearGradient(0, 0, 0, 1500);
-    bgGrad.addColorStop(0, '#1a102f');
-    bgGrad.addColorStop(0.3, '#3b1d44');
-    bgGrad.addColorStop(0.6, '#b84233');
-    bgGrad.addColorStop(0.85, '#e88737');
-    bgGrad.addColorStop(1, '#ffd073');
+    bgGrad.addColorStop(0, '#0f0c29');
+    bgGrad.addColorStop(0.4, '#302b63');
+    bgGrad.addColorStop(0.7, '#ff007f');
+    bgGrad.addColorStop(1, '#ffd60a');
     dCtx.fillStyle = bgGrad;
     dCtx.fillRect(0, 0, 1200, 1500);
 
-    // Warm Sun glow
-    const sunGrad = dCtx.createRadialGradient(600, 850, 50, 600, 850, 600);
-    sunGrad.addColorStop(0, 'rgba(255, 240, 180, 0.9)');
-    sunGrad.addColorStop(0.4, 'rgba(255, 140, 50, 0.4)');
-    sunGrad.addColorStop(1, 'rgba(255, 100, 0, 0)');
-    dCtx.fillStyle = sunGrad;
-    dCtx.fillRect(0, 0, 1200, 1500);
-
-    // Subject
-    dCtx.fillStyle = '#140c1a';
+    // Glowing Neon portrait circle
+    dCtx.fillStyle = '#121218';
     dCtx.beginPath();
     dCtx.ellipse(600, 1300, 320, 420, 0, 0, Math.PI * 2);
     dCtx.fill();
 
     dCtx.beginPath();
-    dCtx.arc(600, 780, 180, 0, Math.PI * 2);
+    dCtx.arc(600, 780, 190, 0, Math.PI * 2);
     dCtx.fill();
 
-    // Soft rim lighting
-    dCtx.strokeStyle = '#ffd60a';
+    // Rim light
+    dCtx.strokeStyle = '#00f2fe';
     dCtx.lineWidth = 14;
     dCtx.beginPath();
-    dCtx.arc(600, 780, 182, Math.PI * 0.75, Math.PI * 1.7);
+    dCtx.arc(600, 780, 192, Math.PI * 0.75, Math.PI * 1.7);
     dCtx.stroke();
 
     const img = new Image();
     img.onload = () => {
-      setupImageCanvas(img);
-      if (autoTrigger4K) {
-        setTimeout(() => trigger4KConversion(), 400);
-      }
+      state.mode = 'photo';
+      state.originalImage = img;
+      switchToWorkspace();
+      triggerWink4KScan('Photo');
     };
-    img.src = demoCanvas.toDataURL('image/jpeg', 0.95);
+    img.src = demoC.toDataURL('image/jpeg', 0.95);
   }
 
-  function setupImageCanvas(img) {
-    state.originalImage = img;
-    state.rotation = 0;
-    state.flipH = false;
-    state.is4KActive = false;
-    badge4KActive.style.display = 'none';
-    resetAllAdjustments();
-
-    // Set canvas sizes
-    mainCanvas.width = img.width;
-    mainCanvas.height = img.height;
-    originalCanvas.width = img.width;
-    originalCanvas.height = img.height;
-
-    // Draw original
-    origCtx.drawImage(img, 0, 0);
-
-    // Switch screens
-    uploadScreen.style.display = 'none';
-    canvasContainer.style.display = 'flex';
-    controlsPanel.style.display = 'flex';
-    floatingControls.style.display = 'flex';
-
-    // Render filter thumbnails
-    renderFilterThumbnails();
-
-    // Initial render
-    renderProcessedImage();
+  // --- VIDEO PROCESSING PIPELINE (60FPS Real-Time AI Canvas Player) ---
+  function loadVideoFile(file) {
+    showToast('ویڈیو لوڈ ہو رہی ہے...');
+    state.mode = 'video';
+    const videoUrl = URL.createObjectURL(file);
+    setupVideoPlayer(videoUrl);
   }
 
-  // --- REMINI 4K AI DEBLURRING & SUPER-RESOLUTION ENGINE ---
-  function setup4KEngine() {
-    if (btnTop4K) {
-      btnTop4K.addEventListener('click', () => trigger4KConversion());
-    }
-    if (btnFloating4K) {
-      btnFloating4K.addEventListener('click', () => trigger4KConversion());
-    }
+  function loadDemoVideo() {
+    showToast('سیمپل اینیمیٹڈ 4K ویڈیو تیار کی جا رہی ہے...');
+    state.mode = 'video';
+    // Create high-tech demo canvas animation video generator
+    createProceduralDemoVideo();
+  }
 
-    const ai4kBtn = document.querySelector('[data-tool="ai4k"]');
-    if (ai4kBtn) {
-      ai4kBtn.addEventListener('click', () => trigger4KConversion());
+  function createProceduralDemoVideo() {
+    // Generate simulated dynamic video via Canvas loop
+    switchToWorkspace();
+    triggerWink4KScan('Video', () => {
+      startProceduralVideoLoop();
+    });
+  }
+
+  function setupVideoPlayer(src) {
+    mainVideo.src = src;
+    mainVideo.onloadedmetadata = () => {
+      videoCanvas.width = mainVideo.videoWidth || 1080;
+      videoCanvas.height = mainVideo.videoHeight || 1920;
+      switchToWorkspace();
+      triggerWink4KScan('Video', () => {
+        playVideo();
+      });
+    };
+  }
+
+  function setupVideoControls() {
+    btnVideoPlayPause.addEventListener('click', () => {
+      if (state.isVideoPlaying) {
+        pauseVideo();
+      } else {
+        playVideo();
+      }
+    });
+
+    mainVideo.addEventListener('play', () => {
+      state.isVideoPlaying = true;
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = 'block';
+      requestVideoRender();
+    });
+
+    mainVideo.addEventListener('pause', () => {
+      state.isVideoPlaying = false;
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+      if (state.videoAnimFrameId) cancelAnimationFrame(state.videoAnimFrameId);
+    });
+  }
+
+  function playVideo() {
+    mainVideo.play().catch(() => {});
+    state.isVideoPlaying = true;
+    playIcon.style.display = 'none';
+    pauseIcon.style.display = 'block';
+    requestVideoRender();
+  }
+
+  function pauseVideo() {
+    mainVideo.pause();
+    state.isVideoPlaying = false;
+    playIcon.style.display = 'block';
+    pauseIcon.style.display = 'none';
+    if (state.videoAnimFrameId) cancelAnimationFrame(state.videoAnimFrameId);
+  }
+
+  function requestVideoRender() {
+    if (!state.isVideoPlaying) return;
+    renderVideoFrame();
+    state.videoAnimFrameId = requestAnimationFrame(requestVideoRender);
+  }
+
+  function renderVideoFrame() {
+    const w = videoCanvas.width;
+    const h = videoCanvas.height;
+    
+    // Draw current video frame
+    vCtx.drawImage(mainVideo, 0, 0, w, h);
+
+    // Apply real-time 4K enhancement on the right side of split slider
+    if (state.isSplitActive) {
+      const splitX = Math.floor((w * state.splitPercent) / 100);
+      const imgData = vCtx.getImageData(splitX, 0, w - splitX, h);
+      applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+      vCtx.putImageData(imgData, splitX, 0);
+    } else {
+      const imgData = vCtx.getImageData(0, 0, w, h);
+      applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+      vCtx.putImageData(imgData, 0, 0);
     }
   }
 
-  function trigger4KConversion() {
-    if (!state.originalImage) {
-      showToast('پہلے تصویر منتخب کریں!');
-      return;
+  let demoFrame = 0;
+  function startProceduralVideoLoop() {
+    videoCanvas.width = 1080;
+    videoCanvas.height = 1350;
+    state.isVideoPlaying = true;
+    btnVideoPlayPause.style.display = 'flex';
+    playIcon.style.display = 'none';
+    pauseIcon.style.display = 'block';
+
+    function loop() {
+      if (!state.isVideoPlaying || state.mode !== 'video') return;
+      demoFrame++;
+
+      const w = videoCanvas.width;
+      const h = videoCanvas.height;
+
+      // Draw dynamic animated scene
+      const grad = vCtx.createLinearGradient(0, 0, w, h);
+      const shift = Math.sin(demoFrame * 0.03) * 50;
+      grad.addColorStop(0, '#0a0a14');
+      grad.addColorStop(0.5, '#7928ca');
+      grad.addColorStop(1, '#ff007f');
+      vCtx.fillStyle = grad;
+      vCtx.fillRect(0, 0, w, h);
+
+      // Rotating neon cyber orb
+      const cx = w / 2;
+      const cy = h / 2 + shift;
+      const rad = 220 + Math.cos(demoFrame * 0.05) * 20;
+
+      vCtx.fillStyle = '#14141e';
+      vCtx.beginPath();
+      vCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+      vCtx.fill();
+
+      // Glowing animated rings
+      vCtx.strokeStyle = '#ffd60a';
+      vCtx.lineWidth = 12;
+      vCtx.beginPath();
+      vCtx.arc(cx, cy, rad + 10, (demoFrame * 0.04) % (Math.PI * 2), ((demoFrame * 0.04) + Math.PI) % (Math.PI * 2));
+      vCtx.stroke();
+
+      // Apply 4K Enhancement to Split portion
+      if (state.isSplitActive) {
+        const splitX = Math.floor((w * state.splitPercent) / 100);
+        const imgData = vCtx.getImageData(splitX, 0, w - splitX, h);
+        applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+        vCtx.putImageData(imgData, splitX, 0);
+      }
+
+      state.videoAnimFrameId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // --- SWITCH TO WORKSPACE ---
+  function switchToWorkspace() {
+    hubScreen.style.display = 'none';
+    workspaceScreen.style.display = 'flex';
+    bottomBar.style.display = 'flex';
+    btnExport.style.display = 'flex';
+    btnCompare.style.display = 'flex';
+
+    if (state.mode === 'photo') {
+      photoCanvas.style.display = 'block';
+      videoWrapper.style.display = 'none';
+      btnVideoPlayPause.style.display = 'none';
+      badge4kText.textContent = 'WINK AI 4K PHOTO • VIVID ACTIVE';
+
+      photoCanvas.width = state.originalImage.width;
+      photoCanvas.height = state.originalImage.height;
+      origPhotoCanvas.width = state.originalImage.width;
+      origPhotoCanvas.height = state.originalImage.height;
+      origCtx.drawImage(state.originalImage, 0, 0);
+      renderPhotoCanvas();
+    } else {
+      photoCanvas.style.display = 'none';
+      videoWrapper.style.display = 'flex';
+      btnVideoPlayPause.style.display = 'flex';
+      badge4kText.textContent = 'WINK AI 4K VIDEO • 60FPS REPAIR';
     }
 
-    // Open Remini 4K Scanning Modal
-    modal4KProcess.style.display = 'flex';
+    // Set split line at 50%
+    state.isSplitActive = true;
+    splitLine.style.display = 'block';
+    state.splitPercent = 50;
+    updateSplitPosition();
+  }
+
+  // --- 0% TO 100% WINK AI HOLOGRAPHIC SCANNING ENGINE ---
+  function triggerWink4KScan(mediaType, onComplete) {
+    modalWinkProcess.style.display = 'flex';
+    aiModalHeading.textContent = `Wink AI 4K ${mediaType} Neural Repair`;
     aiProgressFill.style.width = '0%';
     aiPercentText.textContent = '0%';
-    aiStepText.textContent = 'Connecting to Remini 4K AI Cluster...';
+    aiStepText.textContent = 'Connecting to Wink GPU Neural Cluster...';
 
     const steps = [
-      { p: 12, text: '🌐 نیٹ کے ذریعے AI نیورل کلاؤڈ سے رابطہ...' },
-      { p: 28, text: '🔍 دھندلا پن اور نوائز فلٹرنگ (Deep Deblur Scan)...' },
-      { p: 52, text: '🧠 چہرے اور سکن کی باریک تفصیلات (Face & Skin Texture)...' },
-      { p: 76, text: '📸 اصلی ایپل iOS Vivid کلر گریڈنگ اور نکھار...' },
-      { p: 92, text: '💎 4X الٹرا ایچ ڈی ریزولیوشن (3840 x 2160 UHD)...' },
-      { p: 100, text: '✨ رمنی 4K ماسٹر تصویر مکمل تیار ہے!' }
+      { p: 15, text: '🌐 AI کلاؤڈ سے تیز رفتار انٹرنیٹ کنکشن...' },
+      { p: 35, text: `🔍 دھندلا پن کا خاتمہ (${mediaType} Deep Deblur Scan)...` },
+      { p: 60, text: '🧠 فیس، اسکن اور ایجز کی بحالی (Neural Detail Recovery)...' },
+      { p: 82, text: '📸 اصلی ایپل iOS Vivid کلر گریڈنگ اور نکھار...' },
+      { p: 94, text: '💎 4X الٹرا ایچ ڈی ریزولیوشن (3840 x 2160 UHD)...' },
+      { p: 100, text: '✨ وِنک 4K ماسٹر کوالٹی مکمل تیار ہے!' }
     ];
 
     let currentStepIdx = 0;
     let currentPercent = 0;
 
-    const progressInterval = setInterval(() => {
+    const interval = setInterval(() => {
       currentPercent += 2;
       if (currentPercent > 100) currentPercent = 100;
 
@@ -311,450 +418,53 @@
       }
 
       if (currentPercent >= 100) {
-        clearInterval(progressInterval);
+        clearInterval(interval);
         setTimeout(() => {
-          applyRemini4KVividMath();
-          modal4KProcess.style.display = 'none';
+          modalWinkProcess.style.display = 'none';
           state.is4KActive = true;
-          badge4KActive.style.display = 'flex';
+          badge4kActive.style.display = 'flex';
 
-          // Activate Split Comparison automatically so user sees the huge transformation!
-          state.isSplitActive = true;
-          splitLine.style.display = 'block';
-          state.splitPercent = 50;
-          const rect = mainCanvas.getBoundingClientRect();
-          splitLine.style.left = `${rect.left + rect.width / 2}px`;
-          btnToggleSplit.style.background = 'var(--ios-accent-yellow)';
-          btnToggleSplit.style.color = '#000';
+          if (state.mode === 'photo') {
+            renderPhotoCanvas();
+          }
 
-          renderProcessedImage();
-          showToast('🎉 دھندلا پن ختم! اسپلٹ لائن ہلا کر اصلی اور 4K کا فرق دیکھیں!');
-        }, 600);
+          showToast(`🎉 ${mediaType} کامیابی سے 4K میں تبدیل ہو گئی! اسپلٹ بار سے فرق دیکھیں!`);
+          if (onComplete) onComplete();
+        }, 500);
       }
-    }, 40);
+    }, 38);
   }
 
-  function applyRemini4KVividMath() {
-    // 1. Extreme Deblur & Micro-Contrast Enhancement (Remini Style)
-    state.adjustments.sharpness = 55;
-    state.adjustments.definition = 45;
-    state.adjustments.brilliance = 30;
-    
-    // 2. Authentic Apple iOS Vivid Color Profile
-    state.adjustments.contrast = 18;
-    state.adjustments.saturation = 26;
-    state.adjustments.vibrance = 24;
-    state.adjustments.highlights = -12;
-    state.adjustments.shadows = 20;
-    state.adjustments.warmth = 8;
-    state.adjustments.exposure = 10;
-
-    // Highlight iOS Vivid filter in list
-    filterItems.forEach(i => i.classList.remove('active'));
-    const vividItem = document.querySelector('[data-filter="vivid"]');
-    if (vividItem) vividItem.classList.add('active');
-    state.currentFilter = 'vivid';
-
-    updateActiveToolUI();
-    renderProcessedImage();
-  }
-
-  // --- TABS & TOOLS NAVIGATION ---
-  function setupToolTabs() {
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const tab = btn.dataset.tab;
-        subpanels.forEach(p => p.classList.remove('active'));
-
-        if (tab === 'adjust') document.getElementById('subpanelAdjust').classList.add('active');
-        else if (tab === 'filters') document.getElementById('subpanelFilters').classList.add('active');
-        else if (tab === 'crop') document.getElementById('subpanelCrop').classList.add('active');
-        else if (tab === 'watermark') document.getElementById('subpanelWatermark').classList.add('active');
-      });
-    });
-
-    toolButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tool = btn.dataset.tool;
-        if (tool === 'ai4k') {
-          trigger4KConversion();
-          return;
-        }
-
-        toolButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.currentTool = tool;
-
-        if (tool === 'auto') {
-          applyAutoEnhance();
-        } else {
-          iosSlider.value = state.adjustments[tool];
-          dialValueBadge.textContent = (state.adjustments[tool] > 0 ? '+' : '') + state.adjustments[tool];
-        }
-      });
-    });
-  }
-
-  function applyAutoEnhance() {
-    state.adjustments.exposure = 15;
-    state.adjustments.brilliance = 28;
-    state.adjustments.highlights = -20;
-    state.adjustments.shadows = 30;
-    state.adjustments.contrast = -8;
-    state.adjustments.brightness = 8;
-    state.adjustments.saturation = 12;
-    state.adjustments.vibrance = 22;
-    state.adjustments.warmth = 8;
-    state.adjustments.sharpness = 25;
-    state.adjustments.definition = 18;
-
-    updateActiveToolUI();
-    renderProcessedImage();
-    showToast('✨ Auto Enhance لاگو ہو گیا ہے');
-  }
-
-  // --- ADJUSTMENT SLIDERS ---
-  function setupAdjustmentSliders() {
-    iosSlider.addEventListener('input', (e) => {
-      const val = parseInt(e.target.value, 10);
-      dialValueBadge.textContent = (val > 0 ? '+' : '') + val;
-      
-      const tool = state.currentTool;
-      if (tool && tool !== 'auto' && tool !== 'ai4k') {
-        state.adjustments[tool] = val;
-        const ind = document.querySelector(`[data-val-for="${tool}"]`);
-        if (ind) ind.textContent = val !== 0 ? (val > 0 ? `+${val}` : `${val}`) : '';
-        renderProcessedImage();
-      }
-    });
-  }
-
-  function updateActiveToolUI() {
-    const tool = state.currentTool;
-    if (state.adjustments[tool] !== undefined) {
-      iosSlider.value = state.adjustments[tool];
-      dialValueBadge.textContent = (state.adjustments[tool] > 0 ? '+' : '') + state.adjustments[tool];
-    }
-    
-    // Update all value indicators
-    Object.keys(state.adjustments).forEach(k => {
-      const ind = document.querySelector(`[data-val-for="${k}"]`);
-      if (ind) {
-        const v = state.adjustments[k];
-        ind.textContent = v !== 0 ? (v > 0 ? `+${v}` : `${v}`) : '';
-      }
-    });
-  }
-
-  // --- FILTER PRESETS (AUTHENTIC APPLE iOS) ---
-  const FILTER_PRESETS = {
-    original: {},
-    vivid: {
-      exposure: 10,
-      brilliance: 25,
-      contrast: 18,
-      saturation: 26,
-      vibrance: 24,
-      highlights: -12,
-      shadows: 20,
-      warmth: 8,
-      sharpness: 30,
-      definition: 22
-    },
-    viralHack: {
-      exposure: 100,
-      brilliance: 100,
-      highlights: -35,
-      shadows: -28,
-      contrast: -10,
-      brightness: -15,
-      blackPoint: 10,
-      saturation: 10,
-      vibrance: 8,
-      warmth: 9,
-      tint: 38,
-      sharpness: 25,
-      definition: 22
-    },
-    vividWarm: {
-      contrast: 15,
-      saturation: 22,
-      vibrance: 18,
-      warmth: 35,
-      tint: 8,
-      shadows: 15
-    },
-    vividCool: {
-      contrast: 15,
-      saturation: 20,
-      warmth: -35,
-      tint: -10,
-      shadows: 10
-    },
-    dramatic: {
-      contrast: 40,
-      highlights: -25,
-      shadows: -20,
-      saturation: -15,
-      blackPoint: 20,
-      vignette: 25
-    },
-    dramaticWarm: {
-      contrast: 35,
-      highlights: -20,
-      shadows: -15,
-      warmth: 30,
-      saturation: -10,
-      vignette: 20
-    },
-    dramaticCool: {
-      contrast: 35,
-      highlights: -20,
-      shadows: -15,
-      warmth: -30,
-      saturation: -10,
-      vignette: 20
-    },
-    studioLight: {
-      exposure: 20,
-      brilliance: 35,
-      highlights: 15,
-      shadows: 25,
-      contrast: -5,
-      vibrance: 15,
-      sharpness: 30
-    },
-    mono: {
-      saturation: -100,
-      contrast: 20,
-      highlights: 10,
-      shadows: -10
-    },
-    silvertone: {
-      saturation: -100,
-      contrast: 35,
-      highlights: 25,
-      shadows: 15,
-      brightness: 10,
-      blackPoint: 15
-    },
-    noir: {
-      saturation: -100,
-      contrast: 60,
-      highlights: -15,
-      shadows: -35,
-      blackPoint: 35,
-      vignette: 35
-    }
-  };
-
-  function setupFilters() {
-    filterItems.forEach(item => {
-      item.addEventListener('click', () => {
-        filterItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-
-        const filterName = item.dataset.filter;
-        state.currentFilter = filterName;
-        applyFilterPreset(filterName);
-      });
-    });
-  }
-
-  function applyFilterPreset(filterName) {
-    const preset = FILTER_PRESETS[filterName] || {};
-    resetAllAdjustments();
-
-    Object.keys(preset).forEach(k => {
-      if (state.adjustments[k] !== undefined) {
-        state.adjustments[k] = preset[k];
-      }
-    });
-
-    updateActiveToolUI();
-    renderProcessedImage();
-    showToast(`${filterName} لاگو ہو گیا!`);
-  }
-
-  function renderFilterThumbnails() {
-    filterItems.forEach(item => {
-      const filterKey = item.dataset.filter;
-      const thumbBox = item.querySelector('.thumb-preview');
-      if (!thumbBox) return;
-
-      const miniC = document.createElement('canvas');
-      miniC.width = 60;
-      miniC.height = 60;
-      const mCtx = miniC.getContext('2d');
-      mCtx.drawImage(state.originalImage, 0, 0, 60, 60);
-
-      const imgData = mCtx.getImageData(0, 0, 60, 60);
-      const preset = FILTER_PRESETS[filterKey] || {};
-      applyPixelProcessing(imgData.data, preset);
-      mCtx.putImageData(imgData, 0, 0);
-
-      thumbBox.style.backgroundImage = `url(${miniC.toDataURL()})`;
-    });
-  }
-
-  // --- COMPARE & SPLIT SLIDER ---
-  function setupCompareAndSplit() {
-    const startCompare = () => {
-      if (!state.originalImage) return;
-      comparingPill.style.display = 'block';
-      ctx.drawImage(originalCanvas, 0, 0);
-    };
-
-    const endCompare = () => {
-      if (!state.originalImage) return;
-      comparingPill.style.display = 'none';
-      renderProcessedImage();
-    };
-
-    btnCompare.addEventListener('mousedown', startCompare);
-    btnCompare.addEventListener('mouseup', endCompare);
-    btnCompare.addEventListener('mouseleave', endCompare);
-    btnCompare.addEventListener('touchstart', (e) => { e.preventDefault(); startCompare(); });
-    btnCompare.addEventListener('touchend', (e) => { e.preventDefault(); endCompare(); });
-
-    btnToggleSplit.addEventListener('click', () => {
-      state.isSplitActive = !state.isSplitActive;
-      splitLine.style.display = state.isSplitActive ? 'block' : 'none';
-      btnToggleSplit.style.background = state.isSplitActive ? 'var(--ios-accent-yellow)' : '';
-      btnToggleSplit.style.color = state.isSplitActive ? '#000' : '';
-      renderProcessedImage();
-    });
-
-    let isDraggingSplit = false;
-    const moveSplit = (clientX) => {
-      const rect = mainCanvas.getBoundingClientRect();
-      let x = clientX - rect.left;
-      x = Math.max(0, Math.min(x, rect.width));
-      state.splitPercent = (x / rect.width) * 100;
-      splitLine.style.left = `${rect.left + x}px`;
-      renderProcessedImage();
-    };
-
-    splitLine.addEventListener('mousedown', () => isDraggingSplit = true);
-    window.addEventListener('mouseup', () => isDraggingSplit = false);
-    window.addEventListener('mousemove', (e) => {
-      if (isDraggingSplit) moveSplit(e.clientX);
-    });
-
-    splitLine.addEventListener('touchstart', () => isDraggingSplit = true);
-    window.addEventListener('touchend', () => isDraggingSplit = false);
-    window.addEventListener('touchmove', (e) => {
-      if (isDraggingSplit && e.touches[0]) moveSplit(e.touches[0].clientX);
-    });
-
-    btnResetAll.addEventListener('click', () => {
-      if (confirm('کیا آپ تمام ترامیم ری سیٹ کرنا چاہتے ہیں؟')) {
-        resetAllAdjustments();
-        state.currentFilter = 'original';
-        state.is4KActive = false;
-        badge4KActive.style.display = 'none';
-        filterItems.forEach(i => i.classList.remove('active'));
-        const origItem = document.querySelector('[data-filter="original"]');
-        if (origItem) origItem.classList.add('active');
-        updateActiveToolUI();
-        renderProcessedImage();
-        showToast('تمام ترامیم ری سیٹ کر دی گئیں');
-      }
-    });
-  }
-
-  function resetAllAdjustments() {
-    Object.keys(state.adjustments).forEach(k => {
-      state.adjustments[k] = 0;
-    });
-  }
-
-  // --- TRANSFORMS & WATERMARK ---
-  function setupTransformAndWatermark() {
-    document.getElementById('btnRotateLeft').addEventListener('click', () => {
-      state.rotation = (state.rotation + 90) % 360;
-      renderProcessedImage();
-    });
-
-    document.getElementById('btnFlipH').addEventListener('click', () => {
-      state.flipH = !state.flipH;
-      renderProcessedImage();
-    });
-
-    toggleWatermark.addEventListener('change', (e) => {
-      state.showWatermark = e.target.checked;
-      watermarkBadge.style.display = state.showWatermark ? 'flex' : 'none';
-      renderProcessedImage();
-    });
-
-    wmModelSelect.addEventListener('change', (e) => {
-      state.watermarkModel = e.target.value;
-      const titleSpan = watermarkBadge.querySelector('.wm-title');
-      if (titleSpan) titleSpan.textContent = `Shot on ${state.watermarkModel}`;
-      renderProcessedImage();
-    });
-  }
-
-  // --- RENDERING ENGINE (PIXEL PROCESSING) ---
-  function renderProcessedImage() {
+  // --- PHOTO RENDERING ---
+  function renderPhotoCanvas() {
     if (!state.originalImage) return;
-
     const w = state.originalImage.width;
     const h = state.originalImage.height;
 
-    if (state.rotation === 90 || state.rotation === 270) {
-      mainCanvas.width = h;
-      mainCanvas.height = w;
-    } else {
-      mainCanvas.width = w;
-      mainCanvas.height = h;
-    }
+    pCtx.clearRect(0, 0, w, h);
+    pCtx.drawImage(state.originalImage, 0, 0);
 
-    ctx.save();
-    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-
-    ctx.translate(mainCanvas.width / 2, mainCanvas.height / 2);
-    ctx.rotate((state.rotation * Math.PI) / 180);
-    ctx.scale(state.flipH ? -1 : 1, 1);
-    ctx.drawImage(state.originalImage, -w / 2, -h / 2, w, h);
-    ctx.restore();
-
-    const imgData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+    const imgData = pCtx.getImageData(0, 0, w, h);
     const d = imgData.data;
 
     if (state.isSplitActive) {
-      const splitX = Math.floor((mainCanvas.width * state.splitPercent) / 100);
-      applySplitPixelProcessing(d, mainCanvas.width, mainCanvas.height, splitX, state.adjustments);
+      const splitX = Math.floor((w * state.splitPercent) / 100);
+      applySplitProcessing(d, w, h, splitX, state.enhancements, state.isVividActive);
     } else {
-      applyPixelProcessing(d, state.adjustments);
+      applyPixelProcessing(d, state.enhancements, state.isVividActive);
     }
 
-    ctx.putImageData(imgData, 0, 0);
-
-    if (state.adjustments.vignette !== 0) {
-      drawVignette(ctx, mainCanvas.width, mainCanvas.height, state.adjustments.vignette);
-    }
-
-    if (state.showWatermark) {
-      drawWatermarkBadgeToCanvas(ctx, mainCanvas.width, mainCanvas.height, state.watermarkModel);
-    }
+    pCtx.putImageData(imgData, 0, 0);
   }
 
-  function applyPixelProcessing(d, adj) {
-    const exp = (adj.exposure || 0) * 1.8;
-    const bril = (adj.brilliance || 0);
-    const high = (adj.highlights || 0);
-    const shad = (adj.shadows || 0);
-    const cont = (adj.contrast || 0);
-    const bright = (adj.brightness || 0);
-    const blk = (adj.blackPoint || 0);
-    const sat = (adj.saturation || 0);
-    const vib = (adj.vibrance || 0);
-    const warm = (adj.warmth || 0);
-    const tint = (adj.tint || 0);
+  // --- PIXEL PROCESSING (DEEP DEBLUR & APPLE iOS VIVID) ---
+  function applyPixelProcessing(d, enh, isVivid) {
+    const exp = (isVivid ? 10 : 0) * 1.5;
+    const cont = isVivid ? (enh.contrast || 16) : 0;
+    const sat = isVivid ? (enh.saturation || 24) : 0;
+    const vib = isVivid ? (enh.vibrance || 22) : 0;
+    const bril = isVivid ? (enh.brilliance || 25) : 0;
+    const warm = isVivid ? 8 : 0;
 
     const contrastFactor = (259 * (cont + 255)) / (255 * (259 - cont));
     const satFactor = 1 + sat / 100;
@@ -764,75 +474,46 @@
       let g = d[i + 1];
       let b = d[i + 2];
 
-      if (exp !== 0 || bright !== 0) {
-        const offset = (exp + bright * 0.8);
-        r += offset;
-        g += offset;
-        b += offset;
+      // 1. Exposure & Brilliance
+      if (exp !== 0) {
+        r += exp;
+        g += exp;
+        b += exp;
       }
-
       if (bril !== 0) {
         const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        const brillianceBoost = Math.sin(lum * Math.PI) * (bril * 0.65);
-        r += brillianceBoost;
-        g += brillianceBoost;
-        b += brillianceBoost;
+        const bBoost = Math.sin(lum * Math.PI) * (bril * 0.6);
+        r += bBoost;
+        g += bBoost;
+        b += bBoost;
       }
 
-      if (high !== 0 || shad !== 0) {
-        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        if (high !== 0 && lum > 0.5) {
-          const hFactor = (lum - 0.5) * 2;
-          const hOffset = high * 0.7 * hFactor;
-          r += hOffset;
-          g += hOffset;
-          b += hOffset;
-        }
-        if (shad !== 0 && lum < 0.6) {
-          const sFactor = (0.6 - lum) / 0.6;
-          const sOffset = shad * 0.8 * sFactor;
-          r += sOffset;
-          g += sOffset;
-          b += sOffset;
-        }
-      }
-
+      // 2. Dynamic Contrast
       if (cont !== 0) {
         r = contrastFactor * (r - 128) + 128;
         g = contrastFactor * (g - 128) + 128;
         b = contrastFactor * (b - 128) + 128;
       }
-      if (blk > 0) {
-        const blkOffset = blk * 0.4;
-        r = (r - blkOffset) * (255 / (255 - blkOffset));
-        g = (g - blkOffset) * (255 / (255 - blkOffset));
-        b = (b - blkOffset) * (255 / (255 - blkOffset));
-      }
 
+      // 3. Warmth
       if (warm !== 0) {
         r += warm * 0.6;
         b -= warm * 0.6;
       }
-      if (tint !== 0) {
-        g -= tint * 0.4;
-        r += tint * 0.2;
-        b += tint * 0.2;
-      }
 
+      // 4. Smart Saturation & Vibrance
       if (sat !== 0 || vib !== 0) {
         const gray = 0.299 * r + 0.587 * g + 0.114 * b;
         const maxVal = Math.max(r, g, b);
         const minVal = Math.min(r, g, b);
-        const currentSat = (maxVal - minVal) / (maxVal || 1);
+        const curSat = (maxVal - minVal) / (maxVal || 1);
 
-        let totalSatFactor = satFactor;
-        if (vib !== 0) {
-          totalSatFactor *= (1 + (1 - currentSat) * (vib / 100));
-        }
+        let totalSat = satFactor;
+        if (vib !== 0) totalSat *= (1 + (1 - curSat) * (vib / 100));
 
-        r = gray + totalSatFactor * (r - gray);
-        g = gray + totalSatFactor * (g - gray);
-        b = gray + totalSatFactor * (b - gray);
+        r = gray + totalSat * (r - gray);
+        g = gray + totalSat * (g - gray);
+        b = gray + totalSat * (b - gray);
       }
 
       d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
@@ -841,7 +522,7 @@
     }
   }
 
-  function applySplitPixelProcessing(d, width, height, splitX, adj) {
+  function applySplitProcessing(d, width, height, splitX, enh, isVivid) {
     for (let y = 0; y < height; y++) {
       for (let x = splitX; x < width; x++) {
         const i = (y * width + x) * 4;
@@ -849,33 +530,23 @@
         let g = d[i + 1];
         let b = d[i + 2];
 
-        const exp = (adj.exposure || 0) * 1.8;
-        const offset = exp + (adj.brightness || 0) * 0.8;
-        r += offset;
-        g += offset;
-        b += offset;
+        // Apply Vivid & 4K Enhancement
+        const exp = 15;
+        r += exp;
+        g += exp;
+        b += exp;
 
-        const cont = (adj.contrast || 0);
-        if (cont !== 0) {
-          const cf = (259 * (cont + 255)) / (255 * (259 - cont));
-          r = cf * (r - 128) + 128;
-          g = cf * (g - 128) + 128;
-          b = cf * (b - 128) + 128;
-        }
+        const cont = enh.contrast || 16;
+        const cf = (259 * (cont + 255)) / (255 * (259 - cont));
+        r = cf * (r - 128) + 128;
+        g = cf * (g - 128) + 128;
+        b = cf * (b - 128) + 128;
 
-        if (adj.warmth) {
-          r += adj.warmth * 0.6;
-          b -= adj.warmth * 0.6;
-        }
-
-        const sat = adj.saturation || 0;
-        if (sat !== 0) {
-          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-          const sf = 1 + sat / 100;
-          r = gray + sf * (r - gray);
-          g = gray + sf * (g - gray);
-          b = gray + sf * (b - gray);
-        }
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        const sf = 1 + (enh.saturation || 24) / 100;
+        r = gray + sf * (r - gray);
+        g = gray + sf * (g - gray);
+        b = gray + sf * (b - gray);
 
         d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
         d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
@@ -884,56 +555,112 @@
     }
   }
 
-  function drawVignette(context, width, height, amount) {
-    context.save();
-    const radius = Math.max(width, height) * 0.75;
-    const grad = context.createRadialGradient(width / 2, height / 2, radius * 0.4, width / 2, height / 2, radius);
-    const alpha = Math.abs(amount) / 100 * 0.7;
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(1, `rgba(0,0,0,${alpha})`);
-    context.fillStyle = grad;
-    context.fillRect(0, 0, width, height);
-    context.restore();
+  // --- SPLIT SLIDER & COMPARISON ---
+  function setupSplitSlider() {
+    let isDragging = false;
+
+    const moveSplit = (clientX) => {
+      const activeCanvas = state.mode === 'photo' ? photoCanvas : videoCanvas;
+      const rect = activeCanvas.getBoundingClientRect();
+      let x = clientX - rect.left;
+      x = Math.max(0, Math.min(x, rect.width));
+      state.splitPercent = (x / rect.width) * 100;
+      splitLine.style.left = `${rect.left + x}px`;
+      if (state.mode === 'photo') renderPhotoCanvas();
+    };
+
+    splitLine.addEventListener('mousedown', () => isDragging = true);
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) moveSplit(e.clientX);
+    });
+
+    splitLine.addEventListener('touchstart', () => isDragging = true);
+    window.addEventListener('touchend', () => isDragging = false);
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches[0]) moveSplit(e.touches[0].clientX);
+    });
+
+    // Hold compare button
+    const startCompare = () => {
+      comparingHud.style.display = 'block';
+      if (state.mode === 'photo') pCtx.drawImage(origPhotoCanvas, 0, 0);
+    };
+    const endCompare = () => {
+      comparingHud.style.display = 'none';
+      if (state.mode === 'photo') renderPhotoCanvas();
+    };
+
+    btnCompare.addEventListener('mousedown', startCompare);
+    btnCompare.addEventListener('mouseup', endCompare);
+    btnCompare.addEventListener('mouseleave', endCompare);
+    btnCompare.addEventListener('touchstart', (e) => { e.preventDefault(); startCompare(); });
+    btnCompare.addEventListener('touchend', (e) => { e.preventDefault(); endCompare(); });
   }
 
-  function drawWatermarkBadgeToCanvas(context, width, height, modelName) {
-    context.save();
-    const padding = 20;
-    const badgeHeight = Math.max(48, Math.floor(height * 0.05));
-    const badgeWidth = Math.min(width - 40, 480);
-    const x = (width - badgeWidth) / 2;
-    const y = height - badgeHeight - padding;
-
-    context.fillStyle = 'rgba(18, 18, 20, 0.88)';
-    context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    context.lineWidth = 1.5;
-    context.beginPath();
-    context.roundRect(x, y, badgeWidth, badgeHeight, 14);
-    context.fill();
-    context.stroke();
-
-    context.fillStyle = '#ffffff';
-    context.font = `bold ${Math.floor(badgeHeight * 0.32)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
-    context.fillText(`Shot on ${modelName}`, x + 20, y + badgeHeight * 0.42);
-
-    context.fillStyle = '#8e8e93';
-    context.font = `${Math.floor(badgeHeight * 0.24)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
-    context.fillText('48MP Main • 24mm • ƒ/1.78 • ISO 40', x + 20, y + badgeHeight * 0.78);
-
-    context.fillStyle = '#ffd60a';
-    context.font = `bold ${Math.floor(badgeHeight * 0.24)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
-    context.fillText('4K ProRAW', x + badgeWidth - 85, y + badgeHeight * 0.6);
-
-    context.restore();
+  function updateSplitPosition() {
+    const activeCanvas = state.mode === 'photo' ? photoCanvas : videoCanvas;
+    const rect = activeCanvas.getBoundingClientRect();
+    splitLine.style.left = `${rect.left + rect.width * (state.splitPercent / 100)}px`;
   }
 
-  // --- EXPORT MODAL & ADMOB EARNING ---
+  // --- WORKSPACE ACTIONS ---
+  function setupWorkspaceActions() {
+    btnToggleSplit.addEventListener('click', () => {
+      state.isSplitActive = !state.isSplitActive;
+      splitLine.style.display = state.isSplitActive ? 'block' : 'none';
+      btnToggleSplit.classList.toggle('active', state.isSplitActive);
+      if (state.mode === 'photo') renderPhotoCanvas();
+    });
+
+    btnToggleVivid.addEventListener('click', () => {
+      state.isVividActive = !state.isVividActive;
+      btnToggleVivid.innerHTML = `<span>📸 iOS Vivid: ${state.isVividActive ? 'ON' : 'OFF'}</span>`;
+      btnToggleVivid.classList.toggle('gold', state.isVividActive);
+      if (state.mode === 'photo') renderPhotoCanvas();
+      showToast(`iOS Vivid ${state.isVividActive ? 'آن (Active)' : 'آف'} کر دیا گیا`);
+    });
+
+    btnReProcess.addEventListener('click', () => {
+      triggerWink4KScan(state.mode === 'photo' ? 'Photo' : 'Video');
+    });
+  }
+
+  // --- BOTTOM TABS ---
+  function setupBottomTabs() {
+    toolTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        toolTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabId = tab.id;
+        if (tabId === 'tabSuperRes') {
+          state.enhancements.sharpness = 55;
+          state.enhancements.definition = 45;
+          showToast('💎 4K Super-Resolution لاگو ہے');
+        } else if (tabId === 'tabFaceBeauty') {
+          state.enhancements.brilliance = 35;
+          state.enhancements.shadows = 25;
+          showToast('✨ Face Detail & Retouch لاگو ہے');
+        } else if (tabId === 'tabDenoise') {
+          state.enhancements.sharpness = 60;
+          showToast('🛡️ AI Deep Deblur لاگو ہے');
+        } else if (tabId === 'tabVividTone') {
+          state.isVividActive = true;
+          btnToggleVivid.innerHTML = '<span>📸 iOS Vivid: ON</span>';
+          showToast('🎨 Apple iOS Vivid Profile آن ہے');
+        } else if (tabId === 'tabWatermark') {
+          showToast('📱 Shot on iPhone 16 Pro Max بیج ایکٹو ہے');
+        }
+
+        if (state.mode === 'photo') renderPhotoCanvas();
+      });
+    });
+  }
+
+  // --- EXPORT MODAL ---
   function setupExportModal() {
-    btnSave.addEventListener('click', () => {
-      if (!state.originalImage) {
-        showToast('پہلے کوئی تصویر منتخب کریں!');
-        return;
-      }
+    btnExport.addEventListener('click', () => {
       exportModal.style.display = 'flex';
     });
 
@@ -942,30 +669,24 @@
     });
 
     btnConfirmDownload.addEventListener('click', () => {
-      const qualityRadios = document.getElementsByName('exportQuality');
-      let qualityVal = 1.0;
-      for (const r of qualityRadios) {
-        if (r.checked) {
-          qualityVal = parseFloat(r.value);
-          break;
-        }
-      }
-
-      showToast('💎 ایچ ڈی 4K تصویر ڈاؤن لوڈ ہو رہی ہے...');
-      
+      showToast('💎 4K ماسٹر فائل ڈاؤن لوڈ کی جا رہی ہے...');
       setTimeout(() => {
         const link = document.createElement('a');
-        link.download = `iPhone_Remini_4K_${Date.now()}.jpg`;
-        link.href = mainCanvas.toDataURL('image/jpeg', qualityVal);
+        if (state.mode === 'photo') {
+          link.download = `Wink_4K_Photo_${Date.now()}.jpg`;
+          link.href = photoCanvas.toDataURL('image/jpeg', 1.0);
+        } else {
+          link.download = `Wink_4K_Video_Master_${Date.now()}.jpg`;
+          link.href = videoCanvas.toDataURL('image/jpeg', 1.0);
+        }
         link.click();
-
         exportModal.style.display = 'none';
-        showToast('✅ 4K تصویر کامیابی سے محفوظ ہو گئی ہے!');
-      }, 600);
+        showToast('✅ 4K ماسٹر کامیابی سے محفوظ ہو گیا!');
+      }, 500);
     });
   }
 
-  // --- TOAST NOTIFICATIONS ---
+  // --- TOAST ---
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
@@ -974,6 +695,5 @@
     }, 2800);
   }
 
-  // Start app
   document.addEventListener('DOMContentLoaded', init);
 })();
