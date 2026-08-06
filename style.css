@@ -1,6 +1,5 @@
 /* ==========================================================================
-   Wink Pro - AI Video & Photo 4K Enhancer Design System
-   Authentic Wink AI Dark Neon & Apple ProRAW Aesthetics
+   Wink Pro - AI Video & Photo Pure 4K Enhancer Design System
    ========================================================================== */
 
 :root {
@@ -56,9 +55,7 @@ body.wink-dark {
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
 }
 
-/* ==========================================================================
-   Header Bar
-   ========================================================================== */
+/* Header */
 .wink-header {
   height: 56px;
   display: flex;
@@ -67,7 +64,6 @@ body.wink-dark {
   padding: 0 16px;
   background: rgba(14, 14, 18, 0.85);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--wink-border);
   z-index: 50;
 }
@@ -121,7 +117,6 @@ body.wink-dark {
   font-weight: 900;
   font-size: 16px;
   color: #fff;
-  box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
 }
 
 .brand-text {
@@ -131,7 +126,7 @@ body.wink-dark {
 }
 
 .brand-text strong {
-  color: var(--wink-magenta);
+  color: var(--wink-gold);
 }
 
 .pro-tag {
@@ -144,9 +139,7 @@ body.wink-dark {
   border-radius: 6px;
 }
 
-/* ==========================================================================
-   Viewport & Hub Screen (Wink Style Mode Selection)
-   ========================================================================== */
+/* Viewport */
 .wink-viewport {
   flex: 1;
   display: flex;
@@ -166,10 +159,6 @@ body.wink-dark {
   scrollbar-width: none;
 }
 
-.hub-screen::-webkit-scrollbar {
-  display: none;
-}
-
 .hero-banner {
   text-align: center;
   margin-bottom: 20px;
@@ -179,8 +168,8 @@ body.wink-dark {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 0, 127, 0.15);
-  border: 1px solid rgba(255, 0, 127, 0.4);
+  background: rgba(255, 214, 10, 0.15);
+  border: 1px solid rgba(255, 214, 10, 0.4);
   padding: 4px 12px;
   border-radius: 20px;
   margin-bottom: 10px;
@@ -189,14 +178,13 @@ body.wink-dark {
 .chip-text {
   font-size: 10px;
   font-weight: 800;
-  color: #ff3399;
+  color: #ffd60a;
   letter-spacing: 0.8px;
 }
 
 .hero-banner h1 {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 800;
-  letter-spacing: -0.4px;
   margin-bottom: 6px;
 }
 
@@ -207,7 +195,7 @@ body.wink-dark {
   line-height: 1.7;
 }
 
-/* Mode Cards Grid */
+/* Cards Grid */
 .mode-cards-grid {
   display: flex;
   flex-direction: column;
@@ -223,15 +211,9 @@ body.wink-dark {
   position: relative;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.mode-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .video-card {
@@ -239,7 +221,7 @@ body.wink-dark {
 }
 
 .photo-card {
-  border-color: rgba(0, 242, 254, 0.3);
+  border-color: rgba(255, 214, 10, 0.4);
 }
 
 .card-badge {
@@ -270,8 +252,9 @@ body.wink-dark {
 }
 
 .photo-icon-bg {
-  background: var(--wink-gradient-photo);
-  box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+  background: var(--wink-gold-gradient);
+  color: #000;
+  box-shadow: 0 0 20px rgba(255, 214, 10, 0.4);
 }
 
 .card-content h3 {
@@ -304,7 +287,6 @@ body.wink-dark {
   color: #e5e5ea;
 }
 
-/* Action Buttons */
 .wink-btn-action {
   border: none;
   border-radius: 18px;
@@ -319,10 +301,6 @@ body.wink-dark {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
   text-align: center;
-}
-
-.wink-btn-action:active {
-  transform: scale(0.97);
 }
 
 .video-btn {
@@ -354,11 +332,6 @@ body.wink-dark {
   transition: all 0.2s ease;
 }
 
-.hub-ghost-btn:active {
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(0.98);
-}
-
 .cloud-status-strip {
   display: flex;
   align-items: center;
@@ -383,9 +356,7 @@ body.wink-dark {
   color: var(--text-secondary);
 }
 
-/* ==========================================================================
-   Workspace Screen (Live Canvas / Video Player & Split Slider)
-   ========================================================================== */
+/* Workspace */
 .workspace-screen {
   width: 100%;
   height: 100%;
@@ -425,10 +396,9 @@ body.wink-dark {
 }
 
 #mainVideo {
-  display: none; /* Processed via videoCanvas in real-time */
+  display: none;
 }
 
-/* Video Play Overlay */
 .video-play-overlay {
   position: absolute;
   top: 50%;
@@ -446,14 +416,9 @@ body.wink-dark {
   align-items: center;
   cursor: pointer;
   z-index: 25;
-  transition: all 0.2s ease;
 }
 
-.video-play-overlay:active {
-  transform: translate(-50%, -50%) scale(0.92);
-}
-
-/* Interactive Split Slider */
+/* Split Slider */
 .split-slider-line {
   position: absolute;
   top: 0;
@@ -506,7 +471,6 @@ body.wink-dark {
   color: var(--wink-gold);
 }
 
-/* 4K Active Glowing HUD Badge */
 .wink-badge-4k {
   position: absolute;
   top: 14px;
@@ -517,13 +481,11 @@ body.wink-dark {
   color: var(--wink-gold);
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.5px;
   padding: 4px 12px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 0 16px rgba(255, 214, 10, 0.35);
   z-index: 10;
 }
 
@@ -532,7 +494,6 @@ body.wink-dark {
   height: 6px;
   background: var(--wink-gold);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--wink-gold);
   animation: pulse 1.5s infinite;
 }
 
@@ -557,13 +518,101 @@ body.wink-dark {
   z-index: 15;
 }
 
-/* Floating Quick Action Bar */
+/* Manual Adjust Box (Drawer) */
+.manual-adjust-box {
+  position: absolute;
+  bottom: 56px;
+  left: 12px;
+  right: 12px;
+  background: rgba(18, 18, 24, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--wink-border);
+  border-radius: 20px;
+  padding: 12px 16px;
+  z-index: 35;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adjust-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.dial-val {
+  color: var(--wink-gold);
+  background: rgba(255, 214, 10, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-end {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.slider-row input[type=range] {
+  flex: 1;
+  accent-color: var(--wink-gold);
+  cursor: pointer;
+}
+
+.adjust-tools-list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.adjust-tools-list::-webkit-scrollbar {
+  display: none;
+}
+
+.adj-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.adj-btn.active {
+  background: var(--wink-gold);
+  color: #000;
+  font-weight: 700;
+}
+
+/* Floating Actions */
 .workspace-floating-bar {
   position: absolute;
   bottom: 12px;
   display: flex;
   gap: 8px;
   z-index: 30;
+  max-width: 95%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workspace-floating-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .wink-pill-btn {
@@ -571,20 +620,15 @@ body.wink-dark {
   backdrop-filter: blur(15px);
   border: 1px solid var(--wink-border);
   color: #fff;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 7px 14px;
+  padding: 6px 12px;
   border-radius: 18px;
   display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-  transition: all 0.2s ease;
-}
-
-.wink-pill-btn:active {
-  transform: scale(0.95);
+  white-space: nowrap;
 }
 
 .wink-pill-btn.gold {
@@ -598,13 +642,10 @@ body.wink-dark {
   color: #000;
 }
 
-/* ==========================================================================
-   Bottom Tabs Navigation (Wink AI Quick Tools)
-   ========================================================================== */
+/* Bottom Bar */
 .wink-bottom-bar {
   background: rgba(14, 14, 18, 0.92);
   backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
   border-top: 1px solid var(--wink-border);
   padding: 8px 12px var(--safe-bottom);
   z-index: 40;
@@ -613,7 +654,7 @@ body.wink-dark {
 .bottom-tools-carousel {
   display: flex;
   justify-content: space-around;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tool-tab-btn {
@@ -628,7 +669,6 @@ body.wink-dark {
   font-weight: 600;
   cursor: pointer;
   flex: 1;
-  transition: all 0.2s ease;
 }
 
 .tab-icon-box {
@@ -640,7 +680,6 @@ body.wink-dark {
   justify-content: center;
   align-items: center;
   font-size: 16px;
-  transition: all 0.2s ease;
 }
 
 .tool-tab-btn.active {
@@ -650,12 +689,9 @@ body.wink-dark {
 .tool-tab-btn.active .tab-icon-box {
   background: var(--wink-gold-gradient);
   color: #000;
-  box-shadow: 0 0 15px rgba(255, 214, 10, 0.4);
 }
 
-/* ==========================================================================
-   Wink AI Holographic Scanning & Progress Modal
-   ========================================================================== */
+/* Modal */
 .wink-modal-backdrop {
   position: fixed;
   top: 0;
@@ -664,7 +700,6 @@ body.wink-dark {
   bottom: 0;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -679,15 +714,10 @@ body.wink-dark {
   padding: 26px 20px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.holo-scanner-wrap {
-  margin-bottom: 16px;
 }
 
 .holo-grid-box {
@@ -695,13 +725,13 @@ body.wink-dark {
   height: 100px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.04);
-  border: 2px solid rgba(255, 0, 127, 0.5);
+  border: 2px solid rgba(255, 214, 10, 0.5);
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 35px rgba(255, 0, 127, 0.35);
+  margin-bottom: 16px;
 }
 
 .laser-beam {
@@ -711,7 +741,6 @@ body.wink-dark {
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent, #ffd60a, #ff007f, transparent);
-  box-shadow: 0 0 15px #ff007f, 0 0 10px #ffd60a;
   animation: laserScan 1.6s ease-in-out infinite alternate;
   z-index: 5;
 }
@@ -726,7 +755,7 @@ body.wink-dark {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffd60a, #ff007f, #1c1c1e);
+  background: radial-gradient(circle at 30% 30%, #ffd60a, #ff9500, #1c1c1e);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -741,10 +770,9 @@ body.wink-dark {
 }
 
 .orb-4k {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
   color: #ffd60a;
-  text-shadow: 0 0 8px rgba(255, 214, 10, 0.8);
 }
 
 .orb-ring-1 {
@@ -766,7 +794,7 @@ body.wink-dark {
   right: -8px;
   bottom: -8px;
   border: 2px solid transparent;
-  border-bottom-color: var(--wink-magenta);
+  border-bottom-color: #ff9500;
   border-radius: 50%;
   animation: spin 2s linear infinite reverse;
 }
@@ -774,12 +802,6 @@ body.wink-dark {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.ai-status-block h3 {
-  font-size: 17px;
-  font-weight: 800;
-  margin-bottom: 4px;
 }
 
 .wink-progress-container {
@@ -798,10 +820,9 @@ body.wink-dark {
 
 .wink-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #ff007f, #7928ca, #00f2fe, #ffd60a);
+  background: linear-gradient(90deg, #ff9500, #ffd60a, #30d158);
   border-radius: 4px;
   transition: width 0.15s ease-out;
-  box-shadow: 0 0 14px rgba(255, 214, 10, 0.7);
 }
 
 .wink-progress-info {
@@ -829,9 +850,6 @@ body.wink-dark {
   color: #d1d1d6;
 }
 
-/* ==========================================================================
-   Modals & AdMob
-   ========================================================================== */
 .modal-header {
   text-align: center;
   margin-bottom: 16px;
@@ -853,91 +871,6 @@ body.wink-dark {
   font-family: var(--font-urdu), var(--font-main);
   font-size: 12px;
   color: var(--text-secondary);
-}
-
-.admob-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  padding: 14px;
-  margin-bottom: 16px;
-  width: 100%;
-}
-
-.ad-top-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.ad-tag {
-  background: #ff9500;
-  color: #000;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-
-.ad-network {
-  font-size: 10px;
-  color: var(--text-secondary);
-}
-
-.ad-body {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ad-logo {
-  font-size: 22px;
-  background: rgba(255, 255, 255, 0.1);
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.ad-info {
-  text-align: left;
-}
-
-.ad-info strong {
-  font-size: 13px;
-  display: block;
-}
-
-.ad-info p {
-  font-size: 10px;
-  color: var(--text-secondary);
-}
-
-.ad-install-btn {
-  background: #0070f3;
-  color: #fff;
-  border: none;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 14px;
-  cursor: pointer;
-  margin-left: auto;
-}
-
-.earning-stat-box {
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
-
-.profit-highlight {
-  color: var(--wink-green);
-  font-weight: 700;
 }
 
 .export-options {

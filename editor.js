@@ -1,6 +1,6 @@
 /**
- * Wink Pro - AI Video & Photo 4K Enhancer Engine
- * Dual-Engine: Real-time 60FPS Video 4K Repair & Ultra HD Image Super-Resolution
+ * Wink Pro - AI Portrait & 4K Super-Resolution Engine
+ * Inspired by Wink AI & Remini: Neural Face Relighting, Beard & Texture Recovery, Vibrant Detail Pop
  */
 
 (function () {
@@ -8,7 +8,7 @@
 
   // --- STATE ---
   const state = {
-    mode: 'photo', // 'photo' or 'video'
+    mode: 'photo',
     originalImage: null,
     videoElement: null,
     isVideoPlaying: false,
@@ -16,19 +16,25 @@
     is4KActive: true,
     isSplitActive: true,
     splitPercent: 50,
-    isVividActive: true,
+    currentPreset: 'winkPortrait', // 'winkPortrait', 'pure4k', 'ultraDeblur'
+    currentTool: 'exposure',
     
-    // Neural Enhancement Coefficients
-    enhancements: {
-      sharpness: 55,
-      definition: 40,
-      brilliance: 25,
-      contrast: 16,
-      saturation: 24,
-      vibrance: 22,
-      shadows: 15,
-      highlights: -10
-    }
+    // Core Adjustments
+    adjustments: {
+      exposure: 18,
+      brilliance: 32,
+      highlights: 12,
+      shadows: 25,
+      contrast: 14,
+      brightness: 10,
+      saturation: 16,
+      vibrance: 28,
+      warmth: 4,
+      sharpness: 65,
+      definition: 35
+    },
+
+    deblurIntensity: 70
   };
 
   // --- DOM ELEMENTS ---
@@ -39,13 +45,11 @@
   const btnExport = document.getElementById('btnExport');
   const btnCompare = document.getElementById('btnCompare');
   
-  // Inputs & Demo Triggers
   const photoInput = document.getElementById('photoInput');
   const videoInput = document.getElementById('videoInput');
   const btnTryDemoPhoto = document.getElementById('btnTryDemoPhoto');
   const btnTryDemoVideo = document.getElementById('btnTryDemoVideo');
 
-  // Canvases & Video
   const photoCanvas = document.getElementById('photoCanvas');
   const pCtx = photoCanvas.getContext('2d', { willReadFrequently: true });
   const origPhotoCanvas = document.getElementById('originalPhotoCanvas');
@@ -59,29 +63,31 @@
   const playIcon = document.getElementById('playIcon');
   const pauseIcon = document.getElementById('pauseIcon');
 
-  // HUD & Split Slider
   const splitLine = document.getElementById('splitLine');
   const comparingHud = document.getElementById('comparingHud');
   const badge4kActive = document.getElementById('badge4kActive');
   const badge4kText = document.getElementById('badge4kText');
   const btnToggleSplit = document.getElementById('btnToggleSplit');
-  const btnToggleVivid = document.getElementById('btnToggleVivid');
+  const btnToggleAdjust = document.getElementById('btnToggleAdjust');
   const btnReProcess = document.getElementById('btnReProcess');
 
-  // AI Progress Modal
+  const manualAdjustBox = document.getElementById('manualAdjustBox');
+  const manualSlider = document.getElementById('manualSlider');
+  const dialValueBadge = document.getElementById('dialValueBadge');
+  const currentToolName = document.getElementById('currentToolName');
+  const adjButtons = document.querySelectorAll('.adj-btn');
+
   const modalWinkProcess = document.getElementById('modalWinkProcess');
   const aiProgressFill = document.getElementById('aiProgressFill');
   const aiStepText = document.getElementById('aiStepText');
   const aiPercentText = document.getElementById('aiPercentText');
   const aiModalHeading = document.getElementById('aiModalHeading');
 
-  // Export Modal
   const exportModal = document.getElementById('exportModal');
   const btnConfirmDownload = document.getElementById('btnConfirmDownload');
   const btnCloseModal = document.getElementById('btnCloseModal');
   const toast = document.getElementById('toast');
 
-  // Bottom Tabs
   const toolTabs = document.querySelectorAll('.tool-tab-btn');
 
   // --- INITIALIZATION ---
@@ -90,13 +96,13 @@
     setupSplitSlider();
     setupVideoControls();
     setupWorkspaceActions();
+    setupManualAdjustDrawer();
     setupExportModal();
     setupBottomTabs();
   }
 
   // --- UPLOAD HANDLERS ---
   function setupUploadHandlers() {
-    // 1. Photo Upload
     if (photoInput) {
       photoInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -105,7 +111,6 @@
       });
     }
 
-    // 2. Video Upload
     if (videoInput) {
       videoInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -114,7 +119,6 @@
       });
     }
 
-    // 3. Demo Triggers
     if (btnTryDemoPhoto) {
       btnTryDemoPhoto.addEventListener('click', () => loadDemoPhoto());
     }
@@ -122,7 +126,6 @@
       btnTryDemoVideo.addEventListener('click', () => loadDemoVideo());
     }
 
-    // 4. Back to Home
     if (btnHome) {
       btnHome.addEventListener('click', () => {
         if (state.isVideoPlaying) pauseVideo();
@@ -131,19 +134,21 @@
         bottomBar.style.display = 'none';
         btnExport.style.display = 'none';
         btnCompare.style.display = 'none';
+        manualAdjustBox.style.display = 'none';
       });
     }
   }
 
-  // --- PHOTO PROCESSING PIPELINE ---
+  // --- PHOTO PIPELINE ---
   function loadPhotoFile(file) {
-    showToast('تصویر کلاؤڈ پر بھیجی جا رہی ہے...');
+    showToast('تصویر Wink AI کلاؤڈ میں لوڈ ہو رہی ہے...');
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
         state.mode = 'photo';
         state.originalImage = img;
+        applyWinkPortraitPreset();
         switchToWorkspace();
         triggerWink4KScan('Photo');
       };
@@ -153,49 +158,60 @@
   }
 
   function loadDemoPhoto() {
-    showToast('سیمپل دھندلی تصویر لوڈ کی جا رہی ہے...');
+    showToast('سیمپل تصویر لوڈ ہو رہی ہے...');
     const demoC = document.createElement('canvas');
-    demoC.width = 1200;
-    demoC.height = 1500;
+    demoC.width = 1080;
+    demoC.height = 1920;
     const dCtx = demoC.getContext('2d');
 
-    // Sunset gradient
-    const bgGrad = dCtx.createLinearGradient(0, 0, 0, 1500);
-    bgGrad.addColorStop(0, '#0f0c29');
-    bgGrad.addColorStop(0.4, '#302b63');
-    bgGrad.addColorStop(0.7, '#ff007f');
-    bgGrad.addColorStop(1, '#ffd60a');
+    const bgGrad = dCtx.createLinearGradient(0, 0, 0, 1920);
+    bgGrad.addColorStop(0, '#1e293b');
+    bgGrad.addColorStop(0.5, '#334155');
+    bgGrad.addColorStop(1, '#0f172a');
     dCtx.fillStyle = bgGrad;
-    dCtx.fillRect(0, 0, 1200, 1500);
+    dCtx.fillRect(0, 0, 1080, 1920);
 
-    // Glowing Neon portrait circle
-    dCtx.fillStyle = '#121218';
+    // Person Silhouette
+    dCtx.fillStyle = '#f1f5f9';
     dCtx.beginPath();
-    dCtx.ellipse(600, 1300, 320, 420, 0, 0, Math.PI * 2);
+    dCtx.ellipse(540, 1200, 360, 500, 0, 0, Math.PI * 2);
     dCtx.fill();
 
+    dCtx.fillStyle = '#e2e8f0';
     dCtx.beginPath();
-    dCtx.arc(600, 780, 190, 0, Math.PI * 2);
+    dCtx.arc(540, 680, 200, 0, Math.PI * 2);
     dCtx.fill();
-
-    // Rim light
-    dCtx.strokeStyle = '#00f2fe';
-    dCtx.lineWidth = 14;
-    dCtx.beginPath();
-    dCtx.arc(600, 780, 192, Math.PI * 0.75, Math.PI * 1.7);
-    dCtx.stroke();
 
     const img = new Image();
     img.onload = () => {
       state.mode = 'photo';
       state.originalImage = img;
+      applyWinkPortraitPreset();
       switchToWorkspace();
       triggerWink4KScan('Photo');
     };
     img.src = demoC.toDataURL('image/jpeg', 0.95);
   }
 
-  // --- VIDEO PROCESSING PIPELINE (60FPS Real-Time AI Canvas Player) ---
+  function applyWinkPortraitPreset() {
+    state.currentPreset = 'winkPortrait';
+    state.adjustments = {
+      exposure: 18,
+      brilliance: 32,
+      highlights: 12,
+      shadows: 25,
+      contrast: 14,
+      brightness: 10,
+      saturation: 16,
+      vibrance: 28,
+      warmth: 4,
+      sharpness: 65,
+      definition: 35
+    };
+    state.deblurIntensity = 70;
+  }
+
+  // --- VIDEO PIPELINE ---
   function loadVideoFile(file) {
     showToast('ویڈیو لوڈ ہو رہی ہے...');
     state.mode = 'video';
@@ -204,14 +220,8 @@
   }
 
   function loadDemoVideo() {
-    showToast('سیمپل اینیمیٹڈ 4K ویڈیو تیار کی جا رہی ہے...');
+    showToast('سیمپل اینیمیٹڈ ویڈیو تیار ہو رہی ہے...');
     state.mode = 'video';
-    // Create high-tech demo canvas animation video generator
-    createProceduralDemoVideo();
-  }
-
-  function createProceduralDemoVideo() {
-    // Generate simulated dynamic video via Canvas loop
     switchToWorkspace();
     triggerWink4KScan('Video', () => {
       startProceduralVideoLoop();
@@ -232,11 +242,8 @@
 
   function setupVideoControls() {
     btnVideoPlayPause.addEventListener('click', () => {
-      if (state.isVideoPlaying) {
-        pauseVideo();
-      } else {
-        playVideo();
-      }
+      if (state.isVideoPlaying) pauseVideo();
+      else playVideo();
     });
 
     mainVideo.addEventListener('play', () => {
@@ -279,19 +286,16 @@
   function renderVideoFrame() {
     const w = videoCanvas.width;
     const h = videoCanvas.height;
-    
-    // Draw current video frame
     vCtx.drawImage(mainVideo, 0, 0, w, h);
 
-    // Apply real-time 4K enhancement on the right side of split slider
     if (state.isSplitActive) {
       const splitX = Math.floor((w * state.splitPercent) / 100);
       const imgData = vCtx.getImageData(splitX, 0, w - splitX, h);
-      applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+      applyWinkAIProcessing(imgData.data, w - splitX, h, state.adjustments);
       vCtx.putImageData(imgData, splitX, 0);
     } else {
       const imgData = vCtx.getImageData(0, 0, w, h);
-      applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+      applyWinkAIProcessing(imgData.data, w, h, state.adjustments);
       vCtx.putImageData(imgData, 0, 0);
     }
   }
@@ -312,37 +316,24 @@
       const w = videoCanvas.width;
       const h = videoCanvas.height;
 
-      // Draw dynamic animated scene
       const grad = vCtx.createLinearGradient(0, 0, w, h);
-      const shift = Math.sin(demoFrame * 0.03) * 50;
-      grad.addColorStop(0, '#0a0a14');
-      grad.addColorStop(0.5, '#7928ca');
-      grad.addColorStop(1, '#ff007f');
+      grad.addColorStop(0, '#0f172a');
+      grad.addColorStop(0.5, '#3b82f6');
+      grad.addColorStop(1, '#6366f1');
       vCtx.fillStyle = grad;
       vCtx.fillRect(0, 0, w, h);
 
-      // Rotating neon cyber orb
       const cx = w / 2;
-      const cy = h / 2 + shift;
-      const rad = 220 + Math.cos(demoFrame * 0.05) * 20;
-
-      vCtx.fillStyle = '#14141e';
+      const cy = h / 2;
+      vCtx.fillStyle = '#1e293b';
       vCtx.beginPath();
-      vCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+      vCtx.arc(cx, cy, 220, 0, Math.PI * 2);
       vCtx.fill();
 
-      // Glowing animated rings
-      vCtx.strokeStyle = '#ffd60a';
-      vCtx.lineWidth = 12;
-      vCtx.beginPath();
-      vCtx.arc(cx, cy, rad + 10, (demoFrame * 0.04) % (Math.PI * 2), ((demoFrame * 0.04) + Math.PI) % (Math.PI * 2));
-      vCtx.stroke();
-
-      // Apply 4K Enhancement to Split portion
       if (state.isSplitActive) {
         const splitX = Math.floor((w * state.splitPercent) / 100);
         const imgData = vCtx.getImageData(splitX, 0, w - splitX, h);
-        applyPixelProcessing(imgData.data, state.enhancements, state.isVividActive);
+        applyWinkAIProcessing(imgData.data, w - splitX, h, state.adjustments);
         vCtx.putImageData(imgData, splitX, 0);
       }
 
@@ -363,7 +354,7 @@
       photoCanvas.style.display = 'block';
       videoWrapper.style.display = 'none';
       btnVideoPlayPause.style.display = 'none';
-      badge4kText.textContent = 'WINK AI 4K PHOTO • VIVID ACTIVE';
+      badge4kText.textContent = 'WINK AI 4K HD • PORTRAIT CLARITY';
 
       photoCanvas.width = state.originalImage.width;
       photoCanvas.height = state.originalImage.height;
@@ -378,35 +369,34 @@
       badge4kText.textContent = 'WINK AI 4K VIDEO • 60FPS REPAIR';
     }
 
-    // Set split line at 50%
     state.isSplitActive = true;
     splitLine.style.display = 'block';
     state.splitPercent = 50;
     updateSplitPosition();
   }
 
-  // --- 0% TO 100% WINK AI HOLOGRAPHIC SCANNING ENGINE ---
+  // --- SCANNING PROGRESS ---
   function triggerWink4KScan(mediaType, onComplete) {
     modalWinkProcess.style.display = 'flex';
-    aiModalHeading.textContent = `Wink AI 4K ${mediaType} Neural Repair`;
+    aiModalHeading.textContent = `Wink AI 4K ${mediaType} Neural Clean`;
     aiProgressFill.style.width = '0%';
     aiPercentText.textContent = '0%';
-    aiStepText.textContent = 'Connecting to Wink GPU Neural Cluster...';
+    aiStepText.textContent = 'Connecting to Wink AI Neural Cluster...';
 
     const steps = [
-      { p: 15, text: '🌐 AI کلاؤڈ سے تیز رفتار انٹرنیٹ کنکشن...' },
-      { p: 35, text: `🔍 دھندلا پن کا خاتمہ (${mediaType} Deep Deblur Scan)...` },
-      { p: 60, text: '🧠 فیس، اسکن اور ایجز کی بحالی (Neural Detail Recovery)...' },
-      { p: 82, text: '📸 اصلی ایپل iOS Vivid کلر گریڈنگ اور نکھار...' },
-      { p: 94, text: '💎 4X الٹرا ایچ ڈی ریزولیوشن (3840 x 2160 UHD)...' },
-      { p: 100, text: '✨ وِنک 4K ماسٹر کوالٹی مکمل تیار ہے!' }
+      { p: 15, text: '🌐 AI نیٹ ورک سے رابطہ (Connecting AI Cluster)...' },
+      { p: 35, text: `🔍 چہرہ، داڑھی اور عینک کی باریکیاں (Face & Beard Sharpness)...` },
+      { p: 60, text: '✨ سکن برائٹنس اور شیڈو لفٹ (Neural Skin Relighting)...' },
+      { p: 82, text: '🎨 کپڑوں اور قالین کی ساخت کا نکھار (Fabric & Texture Clarity)...' },
+      { p: 95, text: '💎 4X الٹرا ایچ ڈی 4K ماسٹرنگ (3840 x 2160 UHD)...' },
+      { p: 100, text: '✨ ایچ ڈی 4K تصویر مکمل تیار ہے!' }
     ];
 
     let currentStepIdx = 0;
     let currentPercent = 0;
 
     const interval = setInterval(() => {
-      currentPercent += 2;
+      currentPercent += 3;
       if (currentPercent > 100) currentPercent = 100;
 
       aiProgressFill.style.width = `${currentPercent}%`;
@@ -424,15 +414,12 @@
           state.is4KActive = true;
           badge4kActive.style.display = 'flex';
 
-          if (state.mode === 'photo') {
-            renderPhotoCanvas();
-          }
-
-          showToast(`🎉 ${mediaType} کامیابی سے 4K میں تبدیل ہو گئی! اسپلٹ بار سے فرق دیکھیں!`);
+          if (state.mode === 'photo') renderPhotoCanvas();
+          showToast(`🎉 دھندلا پن ختم! اسپلٹ بار ہلا کر اصلی اور ایچ ڈی کا فرق دیکھیں!`);
           if (onComplete) onComplete();
-        }, 500);
+        }, 400);
       }
-    }, 38);
+    }, 30);
   }
 
   // --- PHOTO RENDERING ---
@@ -449,110 +436,250 @@
 
     if (state.isSplitActive) {
       const splitX = Math.floor((w * state.splitPercent) / 100);
-      applySplitProcessing(d, w, h, splitX, state.enhancements, state.isVividActive);
+      applyWinkAISplit(d, w, h, splitX, state.adjustments);
     } else {
-      applyPixelProcessing(d, state.enhancements, state.isVividActive);
+      applyWinkAIProcessing(d, w, h, state.adjustments);
     }
 
     pCtx.putImageData(imgData, 0, 0);
   }
 
-  // --- PIXEL PROCESSING (DEEP DEBLUR & APPLE iOS VIVID) ---
-  function applyPixelProcessing(d, enh, isVivid) {
-    const exp = (isVivid ? 10 : 0) * 1.5;
-    const cont = isVivid ? (enh.contrast || 16) : 0;
-    const sat = isVivid ? (enh.saturation || 24) : 0;
-    const vib = isVivid ? (enh.vibrance || 22) : 0;
-    const bril = isVivid ? (enh.brilliance || 25) : 0;
-    const warm = isVivid ? 8 : 0;
+  // --- CORE WINK AI ALGORITHM (PORTRAIT + 4K UNSHARP MASKING) ---
+  function applyWinkAIProcessing(d, w, h, adj) {
+    const copy = new Uint8ClampedArray(d);
+    const sharpnessFactor = (adj.sharpness || 65) / 100 * 1.5;
+    const exp = (adj.exposure || 0) * 1.6;
+    const bril = (adj.brilliance || 0);
+    const shad = (adj.shadows || 0);
+    const high = (adj.highlights || 0);
+    const cont = (adj.contrast || 0);
+    const bright = (adj.brightness || 0);
+    const sat = (adj.saturation || 0);
+    const vib = (adj.vibrance || 0);
+    const warm = (adj.warmth || 0);
 
     const contrastFactor = (259 * (cont + 255)) / (255 * (259 - cont));
     const satFactor = 1 + sat / 100;
 
-    for (let i = 0; i < d.length; i += 4) {
-      let r = d[i];
-      let g = d[i + 1];
-      let b = d[i + 2];
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = (y * w + x) * 4;
 
-      // 1. Exposure & Brilliance
-      if (exp !== 0) {
-        r += exp;
-        g += exp;
-        b += exp;
-      }
-      if (bril !== 0) {
+        // 1. High-Pass Unsharp Convolution (Crisp Beard, Glasses, Cap & Fabric)
+        const top = ((y - 1) * w + x) * 4;
+        const bottom = ((y + 1) * w + x) * 4;
+        const left = (y * w + (x - 1)) * 4;
+        const right = (y * w + (x + 1)) * 4;
+
+        let r = copy[i];
+        let g = copy[i + 1];
+        let b = copy[i + 2];
+
+        // Apply edge enhancement
+        const rAvg = (copy[top] + copy[bottom] + copy[left] + copy[right]) / 4;
+        const gAvg = (copy[top + 1] + copy[bottom + 1] + copy[left + 1] + copy[right + 1]) / 4;
+        const bAvg = (copy[top + 2] + copy[bottom + 2] + copy[left + 2] + copy[right + 2]) / 4;
+
+        r += (r - rAvg) * sharpnessFactor;
+        g += (g - gAvg) * sharpnessFactor;
+        b += (b - bAvg) * sharpnessFactor;
+
+        // 2. Exposure & Brightness Lift (Skin Relighting)
+        if (exp !== 0 || bright !== 0) {
+          const lumOffset = exp + bright * 0.8;
+          r += lumOffset;
+          g += lumOffset;
+          b += lumOffset;
+        }
+
+        // 3. Brilliance Curve (Gives healthy face glow & cleans midtones)
+        if (bril !== 0) {
+          const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          const bOffset = Math.sin(lum * Math.PI) * (bril * 0.6);
+          r += bOffset;
+          g += bOffset;
+          b += bOffset;
+        }
+
+        // 4. Shadow Lift & Highlight Tone Mapping
         const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        const bBoost = Math.sin(lum * Math.PI) * (bril * 0.6);
-        r += bBoost;
-        g += bBoost;
-        b += bBoost;
-      }
+        if (shad !== 0 && lum < 0.65) {
+          const sFactor = (0.65 - lum) / 0.65;
+          const sOffset = shad * 0.75 * sFactor;
+          r += sOffset;
+          g += sOffset;
+          b += sOffset;
+        }
+        if (high !== 0 && lum > 0.45) {
+          const hFactor = (lum - 0.45) / 0.55;
+          const hOffset = high * 0.6 * hFactor;
+          r += hOffset;
+          g += hOffset;
+          b += hOffset;
+        }
 
-      // 2. Dynamic Contrast
-      if (cont !== 0) {
-        r = contrastFactor * (r - 128) + 128;
-        g = contrastFactor * (g - 128) + 128;
-        b = contrastFactor * (b - 128) + 128;
-      }
+        // 5. Contrast (Deepens black beard & rich background)
+        if (cont !== 0) {
+          r = contrastFactor * (r - 128) + 128;
+          g = contrastFactor * (g - 128) + 128;
+          b = contrastFactor * (b - 128) + 128;
+        }
 
-      // 3. Warmth
-      if (warm !== 0) {
-        r += warm * 0.6;
-        b -= warm * 0.6;
-      }
+        // 6. Warmth
+        if (warm !== 0) {
+          r += warm * 0.4;
+          b -= warm * 0.4;
+        }
 
-      // 4. Smart Saturation & Vibrance
-      if (sat !== 0 || vib !== 0) {
-        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        const maxVal = Math.max(r, g, b);
-        const minVal = Math.min(r, g, b);
-        const curSat = (maxVal - minVal) / (maxVal || 1);
+        // 7. Vibrance (Protects skin tones while making carpet/background pop!)
+        if (sat !== 0 || vib !== 0) {
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+          const maxVal = Math.max(r, g, b);
+          const minVal = Math.min(r, g, b);
+          const curSat = (maxVal - minVal) / (maxVal || 1);
 
-        let totalSat = satFactor;
-        if (vib !== 0) totalSat *= (1 + (1 - curSat) * (vib / 100));
+          let totalSat = satFactor;
+          if (vib !== 0) totalSat *= (1 + (1 - curSat) * (vib / 100));
 
-        r = gray + totalSat * (r - gray);
-        g = gray + totalSat * (g - gray);
-        b = gray + totalSat * (b - gray);
-      }
-
-      d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
-      d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
-      d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
-    }
-  }
-
-  function applySplitProcessing(d, width, height, splitX, enh, isVivid) {
-    for (let y = 0; y < height; y++) {
-      for (let x = splitX; x < width; x++) {
-        const i = (y * width + x) * 4;
-        let r = d[i];
-        let g = d[i + 1];
-        let b = d[i + 2];
-
-        // Apply Vivid & 4K Enhancement
-        const exp = 15;
-        r += exp;
-        g += exp;
-        b += exp;
-
-        const cont = enh.contrast || 16;
-        const cf = (259 * (cont + 255)) / (255 * (259 - cont));
-        r = cf * (r - 128) + 128;
-        g = cf * (g - 128) + 128;
-        b = cf * (b - 128) + 128;
-
-        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        const sf = 1 + (enh.saturation || 24) / 100;
-        r = gray + sf * (r - gray);
-        g = gray + sf * (g - gray);
-        b = gray + sf * (b - gray);
+          r = gray + totalSat * (r - gray);
+          g = gray + totalSat * (g - gray);
+          b = gray + totalSat * (b - gray);
+        }
 
         d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
         d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
         d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
       }
     }
+  }
+
+  function applyWinkAISplit(d, w, h, splitX, adj) {
+    const copy = new Uint8ClampedArray(d);
+    const sharpnessFactor = (adj.sharpness || 65) / 100 * 1.5;
+    const exp = (adj.exposure || 0) * 1.6;
+    const bril = (adj.brilliance || 0);
+    const shad = (adj.shadows || 0);
+    const high = (adj.highlights || 0);
+    const cont = (adj.contrast || 0);
+    const bright = (adj.brightness || 0);
+    const sat = (adj.saturation || 0);
+    const vib = (adj.vibrance || 0);
+    const warm = (adj.warmth || 0);
+
+    const contrastFactor = (259 * (cont + 255)) / (255 * (259 - cont));
+    const satFactor = 1 + sat / 100;
+
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = splitX; x < w - 1; x++) {
+        const i = (y * w + x) * 4;
+
+        const top = ((y - 1) * w + x) * 4;
+        const bottom = ((y + 1) * w + x) * 4;
+        const left = (y * w + (x - 1)) * 4;
+        const right = (y * w + (x + 1)) * 4;
+
+        let r = copy[i];
+        let g = copy[i + 1];
+        let b = copy[i + 2];
+
+        const rAvg = (copy[top] + copy[bottom] + copy[left] + copy[right]) / 4;
+        const gAvg = (copy[top + 1] + copy[bottom + 1] + copy[left + 1] + copy[right + 1]) / 4;
+        const bAvg = (copy[top + 2] + copy[bottom + 2] + copy[left + 2] + copy[right + 2]) / 4;
+
+        r += (r - rAvg) * sharpnessFactor;
+        g += (g - gAvg) * sharpnessFactor;
+        b += (b - bAvg) * sharpnessFactor;
+
+        if (exp !== 0 || bright !== 0) {
+          const lumOffset = exp + bright * 0.8;
+          r += lumOffset;
+          g += lumOffset;
+          b += lumOffset;
+        }
+
+        if (bril !== 0) {
+          const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          const bOffset = Math.sin(lum * Math.PI) * (bril * 0.6);
+          r += bOffset;
+          g += bOffset;
+          b += bOffset;
+        }
+
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        if (shad !== 0 && lum < 0.65) {
+          const sFactor = (0.65 - lum) / 0.65;
+          const sOffset = shad * 0.75 * sFactor;
+          r += sOffset;
+          g += sOffset;
+          b += sOffset;
+        }
+        if (high !== 0 && lum > 0.45) {
+          const hFactor = (lum - 0.45) / 0.55;
+          const hOffset = high * 0.6 * hFactor;
+          r += hOffset;
+          g += hOffset;
+          b += hOffset;
+        }
+
+        if (cont !== 0) {
+          r = contrastFactor * (r - 128) + 128;
+          g = contrastFactor * (g - 128) + 128;
+          b = contrastFactor * (b - 128) + 128;
+        }
+
+        if (warm !== 0) {
+          r += warm * 0.4;
+          b -= warm * 0.4;
+        }
+
+        if (sat !== 0 || vib !== 0) {
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+          const maxVal = Math.max(r, g, b);
+          const minVal = Math.min(r, g, b);
+          const curSat = (maxVal - minVal) / (maxVal || 1);
+
+          let totalSat = satFactor;
+          if (vib !== 0) totalSat *= (1 + (1 - curSat) * (vib / 100));
+
+          r = gray + totalSat * (r - gray);
+          g = gray + totalSat * (g - gray);
+          b = gray + totalSat * (b - gray);
+        }
+
+        d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
+        d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
+        d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
+      }
+    }
+  }
+
+  // --- MANUAL ADJUST DRAWER ---
+  function setupManualAdjustDrawer() {
+    adjButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        adjButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tool = btn.dataset.tool;
+        state.currentTool = tool;
+        currentToolName.textContent = tool.charAt(0).toUpperCase() + tool.slice(1);
+        
+        const val = state.adjustments[tool] || 0;
+        manualSlider.value = val;
+        dialValueBadge.textContent = (val > 0 ? '+' : '') + val;
+      });
+    });
+
+    manualSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      dialValueBadge.textContent = (val > 0 ? '+' : '') + val;
+
+      const tool = state.currentTool;
+      if (tool && state.adjustments[tool] !== undefined) {
+        state.adjustments[tool] = val;
+        if (state.mode === 'photo') renderPhotoCanvas();
+      }
+    });
   }
 
   // --- SPLIT SLIDER & COMPARISON ---
@@ -581,7 +708,6 @@
       if (isDragging && e.touches[0]) moveSplit(e.touches[0].clientX);
     });
 
-    // Hold compare button
     const startCompare = () => {
       comparingHud.style.display = 'block';
       if (state.mode === 'photo') pCtx.drawImage(origPhotoCanvas, 0, 0);
@@ -613,12 +739,10 @@
       if (state.mode === 'photo') renderPhotoCanvas();
     });
 
-    btnToggleVivid.addEventListener('click', () => {
-      state.isVividActive = !state.isVividActive;
-      btnToggleVivid.innerHTML = `<span>📸 iOS Vivid: ${state.isVividActive ? 'ON' : 'OFF'}</span>`;
-      btnToggleVivid.classList.toggle('gold', state.isVividActive);
-      if (state.mode === 'photo') renderPhotoCanvas();
-      showToast(`iOS Vivid ${state.isVividActive ? 'آن (Active)' : 'آف'} کر دیا گیا`);
+    btnToggleAdjust.addEventListener('click', () => {
+      const isVisible = manualAdjustBox.style.display === 'flex';
+      manualAdjustBox.style.display = isVisible ? 'none' : 'flex';
+      btnToggleAdjust.classList.toggle('active', !isVisible);
     });
 
     btnReProcess.addEventListener('click', () => {
@@ -634,23 +758,26 @@
         tab.classList.add('active');
 
         const tabId = tab.id;
-        if (tabId === 'tabSuperRes') {
-          state.enhancements.sharpness = 55;
-          state.enhancements.definition = 45;
-          showToast('💎 4K Super-Resolution لاگو ہے');
-        } else if (tabId === 'tabFaceBeauty') {
-          state.enhancements.brilliance = 35;
-          state.enhancements.shadows = 25;
-          showToast('✨ Face Detail & Retouch لاگو ہے');
-        } else if (tabId === 'tabDenoise') {
-          state.enhancements.sharpness = 60;
-          showToast('🛡️ AI Deep Deblur لاگو ہے');
+        if (tabId === 'tabPure4K') {
+          applyWinkPortraitPreset();
+          manualAdjustBox.style.display = 'none';
+          showToast('💎 Wink AI 4K Clean (Face & Texture Pop)');
+        } else if (tabId === 'tabUltraDeblur') {
+          state.adjustments.sharpness = 90;
+          state.adjustments.definition = 50;
+          manualAdjustBox.style.display = 'none';
+          showToast('🛡️ Ultra Deblur (مکمل باریک ایجز صاف)');
+        } else if (tabId === 'tabManual') {
+          manualAdjustBox.style.display = 'flex';
+          btnToggleAdjust.classList.add('active');
+          showToast('🎛️ دستی ایڈجسٹمنٹ ٹول کھلا ہے');
         } else if (tabId === 'tabVividTone') {
-          state.isVividActive = true;
-          btnToggleVivid.innerHTML = '<span>📸 iOS Vivid: ON</span>';
-          showToast('🎨 Apple iOS Vivid Profile آن ہے');
-        } else if (tabId === 'tabWatermark') {
-          showToast('📱 Shot on iPhone 16 Pro Max بیج ایکٹو ہے');
+          state.adjustments.saturation = 30;
+          state.adjustments.vibrance = 35;
+          showToast('🎨 iOS Vivid فلٹر لاگو ہے');
+        } else if (tabId === 'tabReset') {
+          Object.keys(state.adjustments).forEach(k => state.adjustments[k] = 0);
+          showToast('🔄 تمام ترامیم ری سیٹ ہو گئیں');
         }
 
         if (state.mode === 'photo') renderPhotoCanvas();
@@ -658,7 +785,7 @@
     });
   }
 
-  // --- EXPORT MODAL ---
+  // --- EXPORT 4K ---
   function setupExportModal() {
     btnExport.addEventListener('click', () => {
       exportModal.style.display = 'flex';
@@ -669,24 +796,51 @@
     });
 
     btnConfirmDownload.addEventListener('click', () => {
-      showToast('💎 4K ماسٹر فائل ڈاؤن لوڈ کی جا رہی ہے...');
+      showToast('💎 4K الٹرا ایچ ڈی فائل تیار ہو رہی ہے...');
+      
       setTimeout(() => {
-        const link = document.createElement('a');
-        if (state.mode === 'photo') {
-          link.download = `Wink_4K_Photo_${Date.now()}.jpg`;
-          link.href = photoCanvas.toDataURL('image/jpeg', 1.0);
+        if (state.mode === 'photo' && state.originalImage) {
+          const exportCanvas = document.createElement('canvas');
+          const maxDim = 3840;
+          let outW = state.originalImage.width;
+          let outH = state.originalImage.height;
+
+          if (outW > outH) {
+            outW = maxDim;
+            outH = Math.round((state.originalImage.height / state.originalImage.width) * maxDim);
+          } else {
+            outH = maxDim;
+            outW = Math.round((state.originalImage.width / state.originalImage.height) * maxDim);
+          }
+
+          exportCanvas.width = outW;
+          exportCanvas.height = outH;
+          const eCtx = exportCanvas.getContext('2d');
+          eCtx.imageSmoothingEnabled = true;
+          eCtx.imageSmoothingQuality = 'high';
+          eCtx.drawImage(state.originalImage, 0, 0, outW, outH);
+
+          const eData = eCtx.getImageData(0, 0, outW, outH);
+          applyWinkAIProcessing(eData.data, outW, outH, state.adjustments);
+          eCtx.putImageData(eData, 0, 0);
+
+          const link = document.createElement('a');
+          link.download = `Wink_4K_Master_${Date.now()}.jpg`;
+          link.href = exportCanvas.toDataURL('image/jpeg', 1.0);
+          link.click();
         } else {
-          link.download = `Wink_4K_Video_Master_${Date.now()}.jpg`;
+          const link = document.createElement('a');
+          link.download = `Wink_Video_Master_${Date.now()}.jpg`;
           link.href = videoCanvas.toDataURL('image/jpeg', 1.0);
+          link.click();
         }
-        link.click();
+
         exportModal.style.display = 'none';
-        showToast('✅ 4K ماسٹر کامیابی سے محفوظ ہو گیا!');
-      }, 500);
+        showToast('✅ 4K Ultra HD فائل کامیابی سے محفوظ ہو گئی!');
+      }, 400);
     });
   }
 
-  // --- TOAST ---
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
