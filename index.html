@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>iTone - iPhone Style Photo Editor & Cam Pro</title>
-  <meta name="description" content="Android کے لیے اصلی آئی فون ایڈیٹر، وائرل فارمولاز، پری سیٹس، اور سلائیڈرز کے ساتھ۔">
+  <title>iTone - iPhone Style Photo Editor & 4K AI Studio</title>
+  <meta name="description" content="Android کے لیے اصلی آئی فون ایڈیٹر، وائرل فارمولاز، 4K AI انہانسمنٹ، اور پری سیٹس کے ساتھ۔">
   
   <!-- Mobile & PWA Meta Tags -->
   <meta name="theme-color" content="#000000">
@@ -29,12 +29,12 @@
       </button>
       
       <div class="header-center">
-        <div class="app-badge">
-          <svg class="apple-logo" viewBox="0 0 170 170" width="14" height="14">
-            <path fill="currentColor" d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12.02-14.42-6.11-9.46-10.9-20.25-14.37-32.37-3.48-12.12-5.22-23.75-5.22-34.89 0-14.7 3.59-26.68 10.77-35.95 7.18-9.27 16.29-13.98 27.34-14.13 4.25 0 9.17 1.15 14.77 3.45 5.6 2.3 9.38 3.5 11.35 3.6 1.74 0 5.69-1.29 11.85-3.87 6.16-2.58 11.45-3.73 15.88-3.45 11.53.65 20.82 4.96 27.87 12.93-9.91 5.99-14.76 14.37-14.54 25.13.22 8.37 3.43 15.35 9.63 20.93 6.2 5.59 13.59 8.65 22.18 9.19-2.18 6.54-4.8 13.06-7.86 19.57zM119.22 31.84c0-7.3 2.66-14.19 7.97-20.67 5.32-6.47 11.75-10.42 19.31-11.84 0 1.2.06 2.29.17 3.26.11.98.17 2.07.17 3.26 0 7.4-2.82 14.55-8.47 21.43-5.65 6.89-12.04 10.84-19.15 11.86-.33-1.63-.5-3.05-.5-4.26-.01-1.22-.01-2.23 0-3.04z"/>
-          </svg>
-          <span class="app-title">iTone Pro</span>
-        </div>
+        <!-- 4K AI Convert Quick Action Button -->
+        <button id="btnTop4K" class="ai-4k-pill-btn" title="Convert to 4K Ultra HD AI">
+          <span class="sparkle-icon">✨</span>
+          <span class="pill-title">4K Ultra HD</span>
+          <span class="ai-badge">AI</span>
+        </button>
       </div>
 
       <div class="header-right">
@@ -65,7 +65,7 @@
             </svg>
           </div>
           <h2>iPhone Style Photo Studio</h2>
-          <p class="urdu-subtext">اپنی کسی بھی تصویر کو اصلی آئی فون کا لک دیں</p>
+          <p class="urdu-subtext">اپنی کسی بھی تصویر کو اصلی آئی فون اور 4K لک دیں</p>
           
           <div class="upload-buttons">
             <label class="ios-btn-primary" for="fileInput">
@@ -99,10 +99,10 @@
 
           <!-- Feature highlights -->
           <div class="feature-pills">
+            <span class="pill" id="pill4KTrigger" style="cursor: pointer; background: rgba(255, 214, 10, 0.15); border-color: rgba(255, 214, 10, 0.3);">💎 ایچ ڈی فور کے 4K کنورٹر</span>
             <span class="pill">✨ وائرل ٹک ٹاک آئی فون ہیک</span>
             <span class="pill">📸 iOS Vivid & Dramatic</span>
             <span class="pill">🌟 Shot on iPhone بیج</span>
-            <span class="pill">💎 4K ایچ ڈی سیو</span>
           </div>
         </div>
       </div>
@@ -126,6 +126,12 @@
           <span>ORIGINAL</span>
         </div>
 
+        <!-- 4K Active Glowing Status Badge on Canvas -->
+        <div class="status-badge-4k" id="badge4KActive" style="display: none;">
+          <span class="dot-pulse"></span>
+          <span>4K ULTRA HD • AI ENHANCED</span>
+        </div>
+
         <!-- Shot on iPhone Watermark Overlay Preview -->
         <div class="watermark-overlay" id="watermarkBadge" style="display: none;">
           <div class="wm-left">
@@ -138,13 +144,18 @@
             </div>
           </div>
           <div class="wm-right">
-            <span class="wm-tag">ProRAW Tone</span>
+            <span class="wm-tag">4K ProRAW Tone</span>
           </div>
         </div>
       </div>
 
       <!-- Quick Action Floating Buttons -->
       <div class="floating-controls" id="floatingControls" style="display: none;">
+        <button id="btnFloating4K" class="float-btn gold-highlight" title="AI 4K Ultra HD Upscale">
+          <span class="sparkle-icon">⚡</span>
+          <span>4K Enhance</span>
+        </button>
+
         <button id="btnToggleSplit" class="float-btn" title="Toggle Split Slider">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="2" x2="12" y2="22"/>
@@ -183,13 +194,22 @@
         </div>
       </div>
 
-      <!-- 2. Sub-Panels (Adjust Tools / Filter Carousel / Crop / Watermark) -->
+      <!-- 2. Sub-Panels (Adjust Tools / Filter Carousel / 4K AI / Crop / Watermark) -->
       <div class="sub-panel-area">
         
         <!-- SUB-PANEL A: ADJUST TOOLS (Icon Circle Buttons) -->
         <div class="tool-subpanel active" id="subpanelAdjust">
           <div class="ios-scroll-strip" id="adjustToolsList">
             
+            <!-- 4K AI Enhance Circle Tool -->
+            <button class="tool-circle-btn special-gold-btn" data-tool="ai4k">
+              <div class="circle-icon">
+                <span style="font-size: 16px; font-weight: 800;">4K</span>
+              </div>
+              <span class="tool-label">4K AI</span>
+              <span class="tool-val-indicator" data-val-for="ai4k"></span>
+            </button>
+
             <!-- Auto Enhance -->
             <button class="tool-circle-btn" data-tool="auto">
               <div class="circle-icon">
@@ -558,6 +578,40 @@
 
   </div>
 
+  <!-- 4K AI Processing & Conversion Progress Modal (0% to 100%) -->
+  <div class="ios-modal-backdrop" id="modal4KProcess" style="display: none;">
+    <div class="ios-modal-card ai-process-card">
+      <div class="ai-orb-container">
+        <div class="ai-glowing-orb">
+          <span class="orb-4k-text">4K</span>
+          <div class="orb-spinner"></div>
+        </div>
+      </div>
+
+      <div class="ai-text-status">
+        <h3 id="aiStatusHeading">AI 4K Super-Resolution</h3>
+        <p id="aiStatusSub" class="urdu-subtext">نارمل تصویر کو فل 4K میں کنورٹ کیا جا رہا ہے...</p>
+      </div>
+
+      <!-- Real Progress Bar with Percentage -->
+      <div class="ai-progress-wrap">
+        <div class="ai-progress-bar">
+          <div class="ai-progress-fill" id="aiProgressFill" style="width: 0%;"></div>
+        </div>
+        <div class="ai-progress-stats">
+          <span id="aiStepText">Initializing Neural Engine...</span>
+          <strong id="aiPercentText">0%</strong>
+        </div>
+      </div>
+
+      <div class="ai-features-taglist">
+        <span class="tag-item">✓ 4X Deep Pixel Upscaling</span>
+        <span class="tag-item">✓ Face Texture Clarity</span>
+        <span class="tag-item">✓ HDR Dynamic Noise Removal</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Export / Monetization Ad Modal (Simulated AdMob) -->
   <div class="ios-modal-backdrop" id="exportModal" style="display: none;">
     <div class="ios-modal-card">
@@ -597,8 +651,8 @@
         <label class="radio-option">
           <input type="radio" name="exportQuality" value="1.0" checked>
           <div class="radio-content">
-            <span class="title">Original 4K Ultra HD (Best Quality)</span>
-            <span class="desc">Original Resolution • Full Apple Color Space</span>
+            <span class="title">4K Ultra HD AI Master (3840x2160)</span>
+            <span class="desc">Crystal Clear • Apple ProRAW Color Space</span>
           </div>
         </label>
         <label class="radio-option">
@@ -617,7 +671,7 @@
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          <span>Download Image (ڈاؤن لوڈ کریں)</span>
+          <span>Download 4K Image (ڈاؤن لوڈ کریں)</span>
         </button>
         <button id="btnCloseModal" class="ios-btn-text">Cancel</button>
       </div>
