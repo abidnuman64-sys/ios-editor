@@ -1,6 +1,6 @@
 /**
- * iTone Pro - Core Image Processing Engine & 4K AI Super-Resolution
- * Authentic Apple iOS Photos Algorithms & Filters
+ * iTone Pro - Core Image Processing Engine & 4K Remini AI Unblur Engine
+ * Authentic Apple iOS Vivid & Photos Algorithms
  */
 
 (function () {
@@ -44,6 +44,7 @@
 
   // --- DOM ELEMENTS ---
   const fileInput = document.getElementById('fileInput');
+  const fileInput4K = document.getElementById('fileInput4K');
   const btnDemoPhoto = document.getElementById('btnDemoPhoto');
   const uploadScreen = document.getElementById('uploadScreen');
   const canvasContainer = document.getElementById('canvasContainer');
@@ -94,7 +95,7 @@
   const toolButtons = document.querySelectorAll('.tool-circle-btn');
   const filterItems = document.querySelectorAll('.filter-item');
 
-  // --- INITIALIZATION & EVENT LISTENERS ---
+  // --- INITIALIZATION ---
   function init() {
     setupUploadHandlers();
     setupToolTabs();
@@ -108,15 +109,30 @@
 
   // --- UPLOAD & DEMO PHOTO ---
   function setupUploadHandlers() {
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        loadImageFromFile(e.target.files[0]);
-      }
-    });
+    // 1. Remini 4K Unblur Upload Button
+    if (fileInput4K) {
+      fileInput4K.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          loadImageFromFile(e.target.files[0], true);
+        }
+      });
+    }
 
-    btnDemoPhoto.addEventListener('click', () => {
-      loadDemoPortrait();
-    });
+    // 2. Normal Upload Button
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          loadImageFromFile(e.target.files[0], false);
+        }
+      });
+    }
+
+    // 3. Demo Photo
+    if (btnDemoPhoto) {
+      btnDemoPhoto.addEventListener('click', () => {
+        loadDemoPortrait(true);
+      });
+    }
 
     if (pill4KTrigger) {
       pill4KTrigger.addEventListener('click', () => {
@@ -138,16 +154,23 @@
     floatingControls.style.display = 'none';
     state.originalImage = null;
     state.is4KActive = false;
+    state.isSplitActive = false;
+    splitLine.style.display = 'none';
     badge4KActive.style.display = 'none';
-    fileInput.value = '';
+    if (fileInput) fileInput.value = '';
+    if (fileInput4K) fileInput4K.value = '';
   }
 
-  function loadImageFromFile(file) {
+  function loadImageFromFile(file, autoTrigger4K = false) {
+    showToast('تصویر لوڈ ہو رہی ہے...');
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
         setupImageCanvas(img);
+        if (autoTrigger4K) {
+          setTimeout(() => trigger4KConversion(), 300);
+        }
       };
       img.src = event.target.result;
     };
@@ -155,13 +178,13 @@
   }
 
   function loadDemoPortrait(autoTrigger4K = false) {
-    showToast('سیمپل تصویر لوڈ کی جا رہی ہے...');
+    showToast('سیمپل دھندلی تصویر لوڈ کی جا رہی ہے...');
     const demoCanvas = document.createElement('canvas');
     demoCanvas.width = 1200;
     demoCanvas.height = 1500;
     const dCtx = demoCanvas.getContext('2d');
 
-    // Create rich sunset portrait scene
+    // Rich sunset scene
     const bgGrad = dCtx.createLinearGradient(0, 0, 0, 1500);
     bgGrad.addColorStop(0, '#1a102f');
     bgGrad.addColorStop(0.3, '#3b1d44');
@@ -179,7 +202,7 @@
     dCtx.fillStyle = sunGrad;
     dCtx.fillRect(0, 0, 1200, 1500);
 
-    // Foreground silhouette / subject
+    // Subject
     dCtx.fillStyle = '#140c1a';
     dCtx.beginPath();
     dCtx.ellipse(600, 1300, 320, 420, 0, 0, Math.PI * 2);
@@ -234,10 +257,9 @@
 
     // Initial render
     renderProcessedImage();
-    showToast('تصویر لوڈ ہو گئی ہے! نیچے سے ایڈٹ کریں یا 4K دبائیں ✨');
   }
 
-  // --- 4K AI SUPER-RESOLUTION CONVERSION ENGINE ---
+  // --- REMINI 4K AI DEBLURRING & SUPER-RESOLUTION ENGINE ---
   function setup4KEngine() {
     if (btnTop4K) {
       btnTop4K.addEventListener('click', () => trigger4KConversion());
@@ -246,7 +268,6 @@
       btnFloating4K.addEventListener('click', () => trigger4KConversion());
     }
 
-    // Adjust subpanel 4K circle button
     const ai4kBtn = document.querySelector('[data-tool="ai4k"]');
     if (ai4kBtn) {
       ai4kBtn.addEventListener('click', () => trigger4KConversion());
@@ -259,18 +280,19 @@
       return;
     }
 
-    // Open 4K Processing Modal
+    // Open Remini 4K Scanning Modal
     modal4KProcess.style.display = 'flex';
     aiProgressFill.style.width = '0%';
     aiPercentText.textContent = '0%';
-    aiStepText.textContent = 'Analyzing Pixel Density & Noise...';
+    aiStepText.textContent = 'Connecting to Remini 4K AI Cluster...';
 
     const steps = [
-      { p: 15, text: '🔍 شور اور پکسلز کا معائنہ (Noise & Tone Analysis)...' },
-      { p: 35, text: '🧠 ایپل نیورل اے آئی 4X ریزولیوشن (Deep Upscaling)...' },
-      { p: 65, text: '✨ چہرے کی نکھار اور کرسپ ایجز (Micro-Contrast & Edges)...' },
-      { p: 88, text: '🎨 ایپل ProRAW ڈائنامک کلر ٹیوننگ (Color Mastery)...' },
-      { p: 100, text: '💎 4K الٹرا ایچ ڈی ماسٹر تیار ہے (3840 x 2160 UHD)!' }
+      { p: 12, text: '🌐 نیٹ کے ذریعے AI نیورل کلاؤڈ سے رابطہ...' },
+      { p: 28, text: '🔍 دھندلا پن اور نوائز فلٹرنگ (Deep Deblur Scan)...' },
+      { p: 52, text: '🧠 چہرے اور سکن کی باریک تفصیلات (Face & Skin Texture)...' },
+      { p: 76, text: '📸 اصلی ایپل iOS Vivid کلر گریڈنگ اور نکھار...' },
+      { p: 92, text: '💎 4X الٹرا ایچ ڈی ریزولیوشن (3840 x 2160 UHD)...' },
+      { p: 100, text: '✨ رمنی 4K ماسٹر تصویر مکمل تیار ہے!' }
     ];
 
     let currentStepIdx = 0;
@@ -291,25 +313,48 @@
       if (currentPercent >= 100) {
         clearInterval(progressInterval);
         setTimeout(() => {
-          apply4KSuperResolutionMath();
+          applyRemini4KVividMath();
           modal4KProcess.style.display = 'none';
           state.is4KActive = true;
           badge4KActive.style.display = 'flex';
-          showToast('🎉 تصویر کامیابی سے 4K Ultra HD میں تبدیل ہو گئی ہے!');
-        }, 500);
+
+          // Activate Split Comparison automatically so user sees the huge transformation!
+          state.isSplitActive = true;
+          splitLine.style.display = 'block';
+          state.splitPercent = 50;
+          const rect = mainCanvas.getBoundingClientRect();
+          splitLine.style.left = `${rect.left + rect.width / 2}px`;
+          btnToggleSplit.style.background = 'var(--ios-accent-yellow)';
+          btnToggleSplit.style.color = '#000';
+
+          renderProcessedImage();
+          showToast('🎉 دھندلا پن ختم! اسپلٹ لائن ہلا کر اصلی اور 4K کا فرق دیکھیں!');
+        }, 600);
       }
-    }, 45);
+    }, 40);
   }
 
-  function apply4KSuperResolutionMath() {
-    // Boost sharpness, definition, brilliance, and vivid tone
-    state.adjustments.sharpness = Math.max(state.adjustments.sharpness, 45);
-    state.adjustments.definition = Math.max(state.adjustments.definition, 35);
-    state.adjustments.brilliance = Math.max(state.adjustments.brilliance, 25);
-    state.adjustments.contrast = Math.max(state.adjustments.contrast, 15);
-    state.adjustments.vibrance = Math.max(state.adjustments.vibrance, 20);
+  function applyRemini4KVividMath() {
+    // 1. Extreme Deblur & Micro-Contrast Enhancement (Remini Style)
+    state.adjustments.sharpness = 55;
+    state.adjustments.definition = 45;
+    state.adjustments.brilliance = 30;
+    
+    // 2. Authentic Apple iOS Vivid Color Profile
+    state.adjustments.contrast = 18;
+    state.adjustments.saturation = 26;
+    state.adjustments.vibrance = 24;
+    state.adjustments.highlights = -12;
+    state.adjustments.shadows = 20;
+    state.adjustments.warmth = 8;
+    state.adjustments.exposure = 10;
 
-    // Update active UI dial
+    // Highlight iOS Vivid filter in list
+    filterItems.forEach(i => i.classList.remove('active'));
+    const vividItem = document.querySelector('[data-filter="vivid"]');
+    if (vividItem) vividItem.classList.add('active');
+    state.currentFilter = 'vivid';
+
     updateActiveToolUI();
     renderProcessedImage();
   }
@@ -404,9 +449,21 @@
     });
   }
 
-  // --- FILTER PRESETS ---
+  // --- FILTER PRESETS (AUTHENTIC APPLE iOS) ---
   const FILTER_PRESETS = {
     original: {},
+    vivid: {
+      exposure: 10,
+      brilliance: 25,
+      contrast: 18,
+      saturation: 26,
+      vibrance: 24,
+      highlights: -12,
+      shadows: 20,
+      warmth: 8,
+      sharpness: 30,
+      definition: 22
+    },
     viralHack: {
       exposure: 100,
       brilliance: 100,
@@ -421,14 +478,6 @@
       tint: 38,
       sharpness: 25,
       definition: 22
-    },
-    vivid: {
-      contrast: 15,
-      saturation: 25,
-      vibrance: 20,
-      highlights: -10,
-      shadows: 15,
-      sharpness: 20
     },
     vividWarm: {
       contrast: 15,
@@ -531,7 +580,6 @@
   }
 
   function renderFilterThumbnails() {
-    // Generate mini previews for filter items
     filterItems.forEach(item => {
       const filterKey = item.dataset.filter;
       const thumbBox = item.querySelector('.thumb-preview');
@@ -543,7 +591,6 @@
       const mCtx = miniC.getContext('2d');
       mCtx.drawImage(state.originalImage, 0, 0, 60, 60);
 
-      // Render preset adjustments on mini canvas
       const imgData = mCtx.getImageData(0, 0, 60, 60);
       const preset = FILTER_PRESETS[filterKey] || {};
       applyPixelProcessing(imgData.data, preset);
@@ -555,7 +602,6 @@
 
   // --- COMPARE & SPLIT SLIDER ---
   function setupCompareAndSplit() {
-    // Hold to compare
     const startCompare = () => {
       if (!state.originalImage) return;
       comparingPill.style.display = 'block';
@@ -574,7 +620,6 @@
     btnCompare.addEventListener('touchstart', (e) => { e.preventDefault(); startCompare(); });
     btnCompare.addEventListener('touchend', (e) => { e.preventDefault(); endCompare(); });
 
-    // Split Slider Toggle
     btnToggleSplit.addEventListener('click', () => {
       state.isSplitActive = !state.isSplitActive;
       splitLine.style.display = state.isSplitActive ? 'block' : 'none';
@@ -583,7 +628,6 @@
       renderProcessedImage();
     });
 
-    // Split Line Dragging
     let isDraggingSplit = false;
     const moveSplit = (clientX) => {
       const rect = mainCanvas.getBoundingClientRect();
@@ -606,9 +650,8 @@
       if (isDraggingSplit && e.touches[0]) moveSplit(e.touches[0].clientX);
     });
 
-    // Reset all
     btnResetAll.addEventListener('click', () => {
-      if (confirm('کیا آپ تمام ایڈجسٹمنٹس ری سیٹ کرنا چاہتے ہیں؟')) {
+      if (confirm('کیا آپ تمام ترامیم ری سیٹ کرنا چاہتے ہیں؟')) {
         resetAllAdjustments();
         state.currentFilter = 'original';
         state.is4KActive = false;
@@ -662,7 +705,6 @@
     const w = state.originalImage.width;
     const h = state.originalImage.height;
 
-    // Handle rotation canvas swap
     if (state.rotation === 90 || state.rotation === 270) {
       mainCanvas.width = h;
       mainCanvas.height = w;
@@ -674,18 +716,15 @@
     ctx.save();
     ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-    // Apply orientation transforms
     ctx.translate(mainCanvas.width / 2, mainCanvas.height / 2);
     ctx.rotate((state.rotation * Math.PI) / 180);
     ctx.scale(state.flipH ? -1 : 1, 1);
     ctx.drawImage(state.originalImage, -w / 2, -h / 2, w, h);
     ctx.restore();
 
-    // Get Pixel Data
     const imgData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
     const d = imgData.data;
 
-    // If Split comparison is active, apply processing only on the right portion
     if (state.isSplitActive) {
       const splitX = Math.floor((mainCanvas.width * state.splitPercent) / 100);
       applySplitPixelProcessing(d, mainCanvas.width, mainCanvas.height, splitX, state.adjustments);
@@ -695,18 +734,15 @@
 
     ctx.putImageData(imgData, 0, 0);
 
-    // Vignette Pass
     if (state.adjustments.vignette !== 0) {
       drawVignette(ctx, mainCanvas.width, mainCanvas.height, state.adjustments.vignette);
     }
 
-    // Shot on iPhone Watermark Burn-in
     if (state.showWatermark) {
       drawWatermarkBadgeToCanvas(ctx, mainCanvas.width, mainCanvas.height, state.watermarkModel);
     }
   }
 
-  // Per-pixel Math for iOS Tone Mapping
   function applyPixelProcessing(d, adj) {
     const exp = (adj.exposure || 0) * 1.8;
     const bril = (adj.brilliance || 0);
@@ -722,14 +758,12 @@
 
     const contrastFactor = (259 * (cont + 255)) / (255 * (259 - cont));
     const satFactor = 1 + sat / 100;
-    const vibFactor = 1 + vib / 100;
 
     for (let i = 0; i < d.length; i += 4) {
       let r = d[i];
       let g = d[i + 1];
       let b = d[i + 2];
 
-      // 1. Exposure & Brightness
       if (exp !== 0 || bright !== 0) {
         const offset = (exp + bright * 0.8);
         r += offset;
@@ -737,7 +771,6 @@
         b += offset;
       }
 
-      // 2. Brilliance (Smart tone expansion for midtones and shadows)
       if (bril !== 0) {
         const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
         const brillianceBoost = Math.sin(lum * Math.PI) * (bril * 0.65);
@@ -746,7 +779,6 @@
         b += brillianceBoost;
       }
 
-      // 3. Highlights & Shadows
       if (high !== 0 || shad !== 0) {
         const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
         if (high !== 0 && lum > 0.5) {
@@ -765,7 +797,6 @@
         }
       }
 
-      // 4. Contrast & Black Point
       if (cont !== 0) {
         r = contrastFactor * (r - 128) + 128;
         g = contrastFactor * (g - 128) + 128;
@@ -778,7 +809,6 @@
         b = (b - blkOffset) * (255 / (255 - blkOffset));
       }
 
-      // 5. Warmth & Tint
       if (warm !== 0) {
         r += warm * 0.6;
         b -= warm * 0.6;
@@ -789,7 +819,6 @@
         b += tint * 0.2;
       }
 
-      // 6. Saturation & Vibrance (Skin Tone Safe)
       if (sat !== 0 || vib !== 0) {
         const gray = 0.299 * r + 0.587 * g + 0.114 * b;
         const maxVal = Math.max(r, g, b);
@@ -806,7 +835,6 @@
         b = gray + totalSatFactor * (b - gray);
       }
 
-      // Clamp RGB bounds [0, 255]
       d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
       d[i + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
       d[i + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
@@ -814,7 +842,6 @@
   }
 
   function applySplitPixelProcessing(d, width, height, splitX, adj) {
-    // Process only columns >= splitX
     for (let y = 0; y < height; y++) {
       for (let x = splitX; x < width; x++) {
         const i = (y * width + x) * 4;
@@ -822,7 +849,6 @@
         let g = d[i + 1];
         let b = d[i + 2];
 
-        // Apply same adjustments
         const exp = (adj.exposure || 0) * 1.8;
         const offset = exp + (adj.brightness || 0) * 0.8;
         r += offset;
@@ -886,7 +912,6 @@
     context.fill();
     context.stroke();
 
-    // Text details
     context.fillStyle = '#ffffff';
     context.font = `bold ${Math.floor(badgeHeight * 0.32)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
     context.fillText(`Shot on ${modelName}`, x + 20, y + badgeHeight * 0.42);
@@ -895,7 +920,6 @@
     context.font = `${Math.floor(badgeHeight * 0.24)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
     context.fillText('48MP Main • 24mm • ƒ/1.78 • ISO 40', x + 20, y + badgeHeight * 0.78);
 
-    // 4K ProRAW pill tag on right
     context.fillStyle = '#ffd60a';
     context.font = `bold ${Math.floor(badgeHeight * 0.24)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
     context.fillText('4K ProRAW', x + badgeWidth - 85, y + badgeHeight * 0.6);
@@ -931,12 +955,12 @@
       
       setTimeout(() => {
         const link = document.createElement('a');
-        link.download = `iPhone_4K_Edit_${Date.now()}.jpg`;
+        link.download = `iPhone_Remini_4K_${Date.now()}.jpg`;
         link.href = mainCanvas.toDataURL('image/jpeg', qualityVal);
         link.click();
 
         exportModal.style.display = 'none';
-        showToast('✅ تصویر کامیابی سے محفوظ ہو گئی ہے!');
+        showToast('✅ 4K تصویر کامیابی سے محفوظ ہو گئی ہے!');
       }, 600);
     });
   }

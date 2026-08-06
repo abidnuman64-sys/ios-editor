@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>iTone - iPhone Style Photo Editor & 4K AI Studio</title>
-  <meta name="description" content="Android کے لیے اصلی آئی فون ایڈیٹر، وائرل فارمولاز، 4K AI انہانسمنٹ، اور پری سیٹس کے ساتھ۔">
+  <title>iTone Pro - iPhone 4K AI Photo Enhancer (Remini Style)</title>
+  <meta name="description" content="Android کے لیے اصلی آئی فون ایڈیٹر، دھندلی تصویر کو رمنی کی طرح صاف کریں اور 4K میں تبدیل کریں۔">
   
   <!-- Mobile & PWA Meta Tags -->
   <meta name="theme-color" content="#000000">
@@ -15,7 +15,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="ios-dark">
@@ -32,8 +32,8 @@
         <!-- 4K AI Convert Quick Action Button -->
         <button id="btnTop4K" class="ai-4k-pill-btn" title="Convert to 4K Ultra HD AI">
           <span class="sparkle-icon">✨</span>
-          <span class="pill-title">4K Ultra HD</span>
-          <span class="ai-badge">AI</span>
+          <span class="pill-title">4K AI Unblur</span>
+          <span class="ai-badge">Remini+</span>
         </button>
       </div>
 
@@ -54,7 +54,7 @@
     <!-- Main Canvas Viewport Area -->
     <main class="canvas-viewport" id="viewport">
       
-      <!-- Welcome / Dropzone Screen if no image -->
+      <!-- Welcome / Dropzone Screen -->
       <div class="upload-screen" id="uploadScreen">
         <div class="glass-card upload-box">
           <div class="iphone-lens-icon">
@@ -64,10 +64,22 @@
               <circle cx="12" cy="12" r="2"/>
             </svg>
           </div>
-          <h2>iPhone Style Photo Studio</h2>
-          <p class="urdu-subtext">اپنی کسی بھی تصویر کو اصلی آئی فون اور 4K لک دیں</p>
+          <h2>iPhone 4K AI Photo Studio</h2>
+          <p class="urdu-subtext">دھندلی تصویر کو صاف کریں اور اصلی آئی فون کا لک دیں</p>
           
           <div class="upload-buttons">
+            <!-- 1. Remini Style 4K AI Unblur Button (Special Glowing Main Action) -->
+            <label class="ios-btn-remini" for="fileInput4K">
+              <div class="remini-icon-box">⚡ 4K</div>
+              <div class="remini-text-box">
+                <strong class="remini-title">4K AI انہانس اور دھندلا پن ختم کریں</strong>
+                <span class="remini-subtitle">Remini AI کی طرح دھندلی تصویر بالکل صاف اور HD</span>
+              </div>
+              <span class="remini-badge">PRO</span>
+            </label>
+            <input type="file" id="fileInput4K" accept="image/*" style="display: none;">
+
+            <!-- 2. Normal Photo Upload -->
             <label class="ios-btn-primary" for="fileInput">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -78,15 +90,16 @@
             </label>
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
+            <!-- 3. Sample Demo Photo -->
             <button id="btnDemoPhoto" class="ios-btn-secondary">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="10 8 16 12 10 16 10 8"/>
               </svg>
-              <span>سیمپل تصویر سے ٹیسٹ کریں (Try Sample)</span>
+              <span>سیمپل دھندلی تصویر سے ٹیسٹ کریں (Try Sample)</span>
             </button>
 
-            <!-- Install Native App Button -->
+            <!-- 4. Install Native Mobile App -->
             <button id="btnInstallApp" class="ios-btn-secondary" style="border-color: rgba(255, 214, 10, 0.4); color: var(--ios-accent-yellow);">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -99,9 +112,9 @@
 
           <!-- Feature highlights -->
           <div class="feature-pills">
-            <span class="pill" id="pill4KTrigger" style="cursor: pointer; background: rgba(255, 214, 10, 0.15); border-color: rgba(255, 214, 10, 0.3);">💎 ایچ ڈی فور کے 4K کنورٹر</span>
+            <span class="pill" id="pill4KTrigger" style="cursor: pointer; background: rgba(255, 214, 10, 0.15); border-color: rgba(255, 214, 10, 0.3);">💎 رمنی جیسا 4K AI فکسر</span>
+            <span class="pill">📸 اصلی iOS Vivid فلٹر</span>
             <span class="pill">✨ وائرل ٹک ٹاک آئی فون ہیک</span>
-            <span class="pill">📸 iOS Vivid & Dramatic</span>
             <span class="pill">🌟 Shot on iPhone بیج</span>
           </div>
         </div>
@@ -129,7 +142,7 @@
         <!-- 4K Active Glowing Status Badge on Canvas -->
         <div class="status-badge-4k" id="badge4KActive" style="display: none;">
           <span class="dot-pulse"></span>
-          <span>4K ULTRA HD • AI ENHANCED</span>
+          <span>4K ULTRA HD • REMINI AI VIVID</span>
         </div>
 
         <!-- Shot on iPhone Watermark Overlay Preview -->
@@ -151,9 +164,9 @@
 
       <!-- Quick Action Floating Buttons -->
       <div class="floating-controls" id="floatingControls" style="display: none;">
-        <button id="btnFloating4K" class="float-btn gold-highlight" title="AI 4K Ultra HD Upscale">
+        <button id="btnFloating4K" class="float-btn gold-highlight" title="AI 4K Ultra HD Upscale & Unblur">
           <span class="sparkle-icon">⚡</span>
-          <span>4K Enhance</span>
+          <span>4K Remini AI</span>
         </button>
 
         <button id="btnToggleSplit" class="float-btn" title="Toggle Split Slider">
@@ -194,7 +207,7 @@
         </div>
       </div>
 
-      <!-- 2. Sub-Panels (Adjust Tools / Filter Carousel / 4K AI / Crop / Watermark) -->
+      <!-- 2. Sub-Panels (Adjust Tools / Filter Carousel / Crop / Watermark) -->
       <div class="sub-panel-area">
         
         <!-- SUB-PANEL A: ADJUST TOOLS (Icon Circle Buttons) -->
@@ -399,6 +412,15 @@
               <span class="filter-name">Original</span>
             </div>
 
+            <!-- AUTHENTIC iOS VIVID (Featured) -->
+            <div class="filter-item" data-filter="vivid">
+              <div class="filter-thumb-box">
+                <div class="thumb-preview" id="thumb-vivid"></div>
+                <span class="badge-mini" style="background: var(--ios-accent-yellow); color: #000;">APPLE</span>
+              </div>
+              <span class="filter-name">iOS Vivid</span>
+            </div>
+
             <!-- VIRAL HACK PRESET -->
             <div class="filter-item viral-badge-item" data-filter="viralHack">
               <div class="filter-thumb-box">
@@ -406,13 +428,6 @@
                 <span class="badge-mini">VIRAL</span>
               </div>
               <span class="filter-name">iPhone Hack</span>
-            </div>
-
-            <div class="filter-item" data-filter="vivid">
-              <div class="filter-thumb-box">
-                <div class="thumb-preview" id="thumb-vivid"></div>
-              </div>
-              <span class="filter-name">Vivid</span>
             </div>
 
             <div class="filter-item" data-filter="vividWarm">
@@ -578,19 +593,24 @@
 
   </div>
 
-  <!-- 4K AI Processing & Conversion Progress Modal (0% to 100%) -->
+  <!-- Remini Style 4K AI Processing & Scanning Progress Modal (0% to 100%) -->
   <div class="ios-modal-backdrop" id="modal4KProcess" style="display: none;">
     <div class="ios-modal-card ai-process-card">
-      <div class="ai-orb-container">
-        <div class="ai-glowing-orb">
-          <span class="orb-4k-text">4K</span>
-          <div class="orb-spinner"></div>
+      
+      <!-- High-tech Scanning Frame -->
+      <div class="remini-scan-container">
+        <div class="remini-scan-box">
+          <div class="scan-laser-line"></div>
+          <div class="remini-orb-inner">
+            <span class="orb-4k-text">4K</span>
+            <div class="orb-spinner"></div>
+          </div>
         </div>
       </div>
 
       <div class="ai-text-status">
-        <h3 id="aiStatusHeading">AI 4K Super-Resolution</h3>
-        <p id="aiStatusSub" class="urdu-subtext">نارمل تصویر کو فل 4K میں کنورٹ کیا جا رہا ہے...</p>
+        <h3 id="aiStatusHeading">Remini 4K AI Neural Cloud</h3>
+        <p id="aiStatusSub" class="urdu-subtext">نیٹ کے ذریعے دھندلی تصویر کو صاف اور 4K کیا جا رہا ہے...</p>
       </div>
 
       <!-- Real Progress Bar with Percentage -->
@@ -599,15 +619,15 @@
           <div class="ai-progress-fill" id="aiProgressFill" style="width: 0%;"></div>
         </div>
         <div class="ai-progress-stats">
-          <span id="aiStepText">Initializing Neural Engine...</span>
+          <span id="aiStepText">Connecting to Cloud Neural Cluster...</span>
           <strong id="aiPercentText">0%</strong>
         </div>
       </div>
 
       <div class="ai-features-taglist">
-        <span class="tag-item">✓ 4X Deep Pixel Upscaling</span>
-        <span class="tag-item">✓ Face Texture Clarity</span>
-        <span class="tag-item">✓ HDR Dynamic Noise Removal</span>
+        <span class="tag-item">⚡ Ultra-Clarity Deep Deblurring (دھندلا پن ختم)</span>
+        <span class="tag-item">📸 Authentic Apple iOS Vivid Color Grading (اصلی ویوڈ لک)</span>
+        <span class="tag-item">💎 4X Super-Resolution (3840 x 2160 UHD)</span>
       </div>
     </div>
   </div>
