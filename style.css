@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Wink Pro - AI Video & Photo Pure 4K Enhancer Design System
+   Wink Pro - Real Cloud AI 4K Restoration Design System
    ========================================================================== */
 
 :root {
@@ -9,14 +9,11 @@
   --wink-magenta: #ff007f;
   --wink-cyan: #00f2fe;
   --wink-gold: #ffd60a;
-  --wink-purple: #7928ca;
   --wink-green: #30d158;
   --wink-gradient-video: linear-gradient(135deg, #7928ca 0%, #ff007f 60%, #ffd60a 100%);
-  --wink-gradient-photo: linear-gradient(135deg, #0070f3 0%, #00f2fe 50%, #30d158 100%);
   --wink-gold-gradient: linear-gradient(135deg, #ffe066 0%, #ffd60a 50%, #f59f00 100%);
   --text-primary: #ffffff;
   --text-secondary: #9a9aa2;
-  --text-tertiary: #5a5a64;
   --font-main: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
   --font-urdu: 'Noto Nastaliq Urdu', serif;
   --safe-bottom: env(safe-area-inset-bottom, 16px);
@@ -44,7 +41,7 @@ body.wink-dark {
 
 .app-container {
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   height: 100%;
   max-height: 100vh;
   display: flex;
@@ -52,7 +49,7 @@ body.wink-dark {
   background-color: var(--wink-bg);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
 }
 
 /* Header */
@@ -62,7 +59,7 @@ body.wink-dark {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background: rgba(14, 14, 18, 0.85);
+  background: rgba(14, 14, 18, 0.88);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--wink-border);
   z-index: 50;
@@ -80,12 +77,6 @@ body.wink-dark {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.wink-nav-btn:active {
-  transform: scale(0.95);
-  opacity: 0.7;
 }
 
 .save-btn {
@@ -122,7 +113,6 @@ body.wink-dark {
 .brand-text {
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.5px;
 }
 
 .brand-text strong {
@@ -168,8 +158,8 @@ body.wink-dark {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 214, 10, 0.15);
-  border: 1px solid rgba(255, 214, 10, 0.4);
+  background: rgba(48, 209, 88, 0.15);
+  border: 1px solid rgba(48, 209, 88, 0.4);
   padding: 4px 12px;
   border-radius: 20px;
   margin-bottom: 10px;
@@ -178,7 +168,7 @@ body.wink-dark {
 .chip-text {
   font-size: 10px;
   font-weight: 800;
-  color: #ffd60a;
+  color: var(--wink-green);
   letter-spacing: 0.8px;
 }
 
@@ -195,7 +185,7 @@ body.wink-dark {
   line-height: 1.7;
 }
 
-/* Cards Grid */
+/* Mode Cards */
 .mode-cards-grid {
   display: flex;
   flex-direction: column;
@@ -216,12 +206,12 @@ body.wink-dark {
   gap: 14px;
 }
 
-.video-card {
-  border-color: rgba(255, 0, 127, 0.3);
-}
-
 .photo-card {
   border-color: rgba(255, 214, 10, 0.4);
+}
+
+.video-card {
+  border-color: rgba(255, 0, 127, 0.3);
 }
 
 .card-badge {
@@ -243,18 +233,18 @@ body.wink-dark {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fff;
-}
-
-.video-icon-bg {
-  background: var(--wink-gradient-video);
-  box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
 }
 
 .photo-icon-bg {
   background: var(--wink-gold-gradient);
   color: #000;
   box-shadow: 0 0 20px rgba(255, 214, 10, 0.4);
+}
+
+.video-icon-bg {
+  background: var(--wink-gradient-video);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
 }
 
 .card-content h3 {
@@ -296,21 +286,18 @@ body.wink-dark {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
   text-align: center;
-}
-
-.video-btn {
-  background: var(--wink-gradient-video);
-  color: #ffffff;
 }
 
 .photo-btn {
   background: var(--wink-gold-gradient);
   color: #000000;
+}
+
+.video-btn {
+  background: var(--wink-gradient-video);
+  color: #ffffff;
 }
 
 .hub-footer-actions {
@@ -329,7 +316,6 @@ body.wink-dark {
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .cloud-status-strip {
@@ -356,34 +342,46 @@ body.wink-dark {
   color: var(--text-secondary);
 }
 
-/* Workspace */
+/* Workspace & Zoom Viewport */
 .workspace-screen {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  padding: 12px;
-}
-
-.media-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
   overflow: hidden;
 }
 
+.zoom-viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+}
+
+.zoom-viewport.grabbing {
+  cursor: grabbing;
+}
+
+.media-container {
+  position: relative;
+  transform-origin: center center;
+  transition: transform 0.1s ease-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #photoCanvas, #videoCanvas {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 92vw;
+  max-height: 72vh;
   object-fit: contain;
   border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
 }
 
 .video-wrapper {
@@ -392,30 +390,10 @@ body.wink-dark {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
 }
 
 #mainVideo {
   display: none;
-}
-
-.video-play-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(15px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 25;
 }
 
 /* Split Slider */
@@ -471,6 +449,63 @@ body.wink-dark {
   color: var(--wink-gold);
 }
 
+/* Zoom HUD Controls Bar */
+.zoom-hud-bar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(18, 18, 24, 0.88);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--wink-border);
+  padding: 4px 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 30;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.zoom-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #ffffff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.zoom-btn.reset-btn {
+  width: auto;
+  border-radius: 12px;
+  font-size: 11px;
+  padding: 0 8px;
+}
+
+.zoom-btn.face-btn {
+  width: auto;
+  border-radius: 12px;
+  font-size: 11px;
+  padding: 0 10px;
+  background: rgba(255, 214, 10, 0.2);
+  border: 1px solid rgba(255, 214, 10, 0.5);
+  color: var(--wink-gold);
+}
+
+.zoom-badge {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--wink-gold);
+  min-width: 40px;
+  text-align: center;
+}
+
 .wink-badge-4k {
   position: absolute;
   top: 14px;
@@ -486,7 +521,7 @@ body.wink-dark {
   display: flex;
   align-items: center;
   gap: 6px;
-  z-index: 10;
+  z-index: 25;
 }
 
 .dot-pulse {
@@ -505,8 +540,8 @@ body.wink-dark {
 
 .comparing-hud {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 56px;
+  left: 14px;
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -515,88 +550,26 @@ body.wink-dark {
   padding: 4px 10px;
   border-radius: 10px;
   display: none;
-  z-index: 15;
+  z-index: 25;
 }
 
-/* Manual Adjust Box (Drawer) */
-.manual-adjust-box {
+.video-play-overlay {
   position: absolute;
-  bottom: 56px;
-  left: 12px;
-  right: 12px;
-  background: rgba(18, 18, 24, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--wink-border);
-  border-radius: 20px;
-  padding: 12px 16px;
-  z-index: 35;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.adjust-header {
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.dial-val {
-  color: var(--wink-gold);
-  background: rgba(255, 214, 10, 0.15);
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.slider-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.slider-end {
-  font-size: 10px;
-  color: var(--text-secondary);
-}
-
-.slider-row input[type=range] {
-  flex: 1;
-  accent-color: var(--wink-gold);
   cursor: pointer;
-}
-
-.adjust-tools-list {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-
-.adjust-tools-list::-webkit-scrollbar {
-  display: none;
-}
-
-.adj-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.adj-btn.active {
-  background: var(--wink-gold);
-  color: #000;
-  font-weight: 700;
+  z-index: 25;
 }
 
 /* Floating Actions */
@@ -606,13 +579,6 @@ body.wink-dark {
   display: flex;
   gap: 8px;
   z-index: 30;
-  max-width: 95%;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.workspace-floating-bar::-webkit-scrollbar {
-  display: none;
 }
 
 .wink-pill-btn {
@@ -628,7 +594,6 @@ body.wink-dark {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .wink-pill-btn.gold {
@@ -770,7 +735,7 @@ body.wink-dark {
 }
 
 .orb-4k {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   color: #ffd60a;
 }
@@ -891,10 +856,6 @@ body.wink-dark {
   border-radius: 14px;
   cursor: pointer;
   text-align: left;
-}
-
-.radio-option input:checked + .radio-content .title {
-  color: var(--wink-gold);
 }
 
 .radio-content .title {
